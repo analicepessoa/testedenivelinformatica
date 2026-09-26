@@ -28,6 +28,13 @@ const stages = [
   ]}
 ];
 
+const keyboardRows = [
+  [{ id: 'til', label: '~' }, { id: '1', label: '1' }, { id: '2', label: '2' }, { id: '3', label: '3' }, { id: '4', label: '4' }, { id: '5', label: '5' }, { id: '6', label: '6' }, { id: '7', label: '7' }, { id: '8', label: '8' }, { id: '9', label: '9' }, { id: '0', label: '0' }],
+  [{ id: 'q', label: 'Q' }, { id: 'w', label: 'W' }, { id: 'e', label: 'E' }, { id: 'r', label: 'R' }, { id: 't', label: 'T' }, { id: 'y', label: 'Y' }, { id: 'u', label: 'U' }, { id: 'i', label: 'I' }, { id: 'o', label: 'O' }, { id: 'p', label: 'P' }],
+  [{ id: 'a', label: 'A' }, { id: 's', label: 'S' }, { id: 'd', label: 'D' }, { id: 'f', label: 'F' }, { id: 'g', label: 'G' }, { id: 'h', label: 'H' }, { id: 'j', label: 'J' }, { id: 'k', label: 'K' }, { id: 'l', label: 'L' }],
+  [{ id: 'shift', label: 'Shift', wide: true }, { id: 'z', label: 'Z' }, { id: 'x', label: 'X' }, { id: 'c', label: 'C' }, { id: 'v', label: 'V' }, { id: 'b', label: 'B' }, { id: 'n', label: 'N' }, { id: 'm', label: 'M' }, { id: 'enter', label: 'Enter', wide: true }]
+];
+
 const state = { profile: {}, stageIndex: 0, questionIndex: 0, answers: [], stageScores: [], taskSteps: {}, lastStageScore: 0 };
 const $ = (id) => document.getElementById(id);
 const views = ['welcomeView','profileView','quizView','stageResultView','reportView'];
@@ -44,7 +51,8 @@ function taskMarkup(question, completed) {
   if (question.type === 'mouse-click') return `<div class="interaction-stage"><p class="task-instruction">${question.instruction}</p><div class="mouse-simulator" aria-label="Mouse virtual"><button class="mouse-button mouse-left" data-task-action="mouse-left" aria-label="Botao esquerdo do mouse">Clique aqui</button><button class="mouse-button mouse-right" data-task-action="mouse-right" aria-label="Botao direito do mouse"></button><span class="mouse-wheel" aria-hidden="true"></span></div>${done}</div>`;
   if (question.type === 'double-click') return `<div class="interaction-stage"><p class="task-instruction">${question.instruction}</p><button class="folder-simulator" data-task-action="folder-open" aria-label="Pasta Curso, faca dois cliques"><span aria-hidden="true">📁</span><b>CURSO</b><small>2 cliques para abrir</small></button>${done}</div>`;
   const pressed = steps.map(id => question.keys.find(key => key.id === id)?.label || '').join(' + ');
-  return `<div class="interaction-stage keyboard-stage"><p class="task-instruction">${question.instruction}</p><div class="typing-preview"><span>${pressed || '...'}</span><b>${steps.length === question.sequence.length ? question.result : ''}</b></div><div class="virtual-keyboard">${question.keys.map(key => `<button class="virtual-key ${key.wide ? 'wide' : ''} ${steps.includes(key.id) ? 'pressed' : ''}" data-task-action="${key.id}">${key.label}</button>`).join('')}</div>${done}</div>`;
+  const keyboard = keyboardRows.map(row => `<div class="keyboard-row">${row.map(key => `<button class="virtual-key ${key.wide ? 'wide' : ''} ${steps.includes(key.id) ? 'pressed' : ''}" data-task-action="${key.id}">${key.label}</button>`).join('')}</div>`).join('');
+  return `<div class="interaction-stage keyboard-stage"><p class="task-instruction">${question.instruction}</p><div class="keyboard-help"><span aria-hidden="true">⌨️</span><div><b>Teclado de treino ja esta aberto</b><small>Para abrir o teclado virtual do Windows no dia a dia, procure o simbolo ⌨️ na barra de tarefas.</small></div></div><div class="typing-preview"><span>${pressed || '...'}</span><b>${steps.length === question.sequence.length ? question.result : ''}</b></div><div class="virtual-keyboard" aria-label="Teclado virtual de treino">${keyboard}</div>${done}</div>`;
 }
 
 function completeTask(question) {
