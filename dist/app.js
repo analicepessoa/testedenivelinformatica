@@ -35,36 +35,47 @@ const keyboardRows = [
   [{ id: 'shift', label: 'Shift', wide: true }, { id: 'z', label: 'Z' }, { id: 'x', label: 'X' }, { id: 'c', label: 'C' }, { id: 'v', label: 'V' }, { id: 'b', label: 'B' }, { id: 'n', label: 'N' }, { id: 'm', label: 'M' }, { id: 'enter', label: 'Enter', wide: true }]
 ];
 
-const state = { profile: {}, stageIndex: 0, questionIndex: 0, answers: [], stageScores: [], taskSteps: {}, lastStageScore: 0 };
+const state = { profile: {}, stageIndex: 0, questionIndex: 0, answers: [], stageScores: [], taskSteps: {}, taskAttempts: {}, lastStageScore: 0 };
 const $ = (id) => document.getElementById(id);
 const views = ['welcomeView','profileView','quizView','stageResultView','reportView'];
+let editingProfile = false;
 
-function showView(id) { views.forEach(v => $(v).classList.toggle('active', v === id)); $('restartButton').hidden = id === 'welcomeView'; }
+function showView(id) { views.forEach(v => $(v).classList.toggle('active', v === id)); }
 function save() { localStorage.setItem('rotaDigitalAssessment', JSON.stringify(state)); }
-function reset() { Object.assign(state, { profile: {}, stageIndex: 0, questionIndex: 0, answers: [], stageScores: [], taskSteps: {}, lastStageScore: 0 }); localStorage.removeItem('rotaDigitalAssessment'); showView('welcomeView'); $('stepLabel').textContent = 'Boas-vindas'; window.scrollTo(0,0); }
+function reset() { Object.assign(state, { profile: {}, stageIndex: 0, questionIndex: 0, answers: [], stageScores: [], taskSteps: {}, taskAttempts: {}, lastStageScore: 0 }); localStorage.removeItem('rotaDigitalAssessment'); showView('welcomeView'); $('stepLabel').textContent = 'Boas-vindas'; window.scrollTo(0,0); }
 function stageQuestions() { return stages[state.stageIndex].questions; }
 function taskKey() { return `${state.stageIndex}-${state.questionIndex}`; }
 
 function taskMarkup(question, completed) {
   const steps = state.taskSteps[taskKey()] || [];
-  const done = completed ? '<p class="task-success">✓ Muito bem! Pode continuar.</p>' : '<p class="task-feedback" id="taskFeedback" aria-live="polite"></p>';
-  if (question.type === 'mouse-click') return `<div class="interaction-stage"><p class="task-instruction">${question.instruction}</p><div class="mouse-simulator" aria-label="Mouse virtual"><button class="mouse-button mouse-left" data-task-action="mouse-left" aria-label="Botao esquerdo do mouse">Clique aqui</button><button class="mouse-button mouse-right" data-task-action="mouse-right" aria-label="Botao direito do mouse"></button><span class="mouse-wheel" aria-hidden="true"></span></div>${done}</div>`;
-  if (question.type === 'double-click') return `<div class="interaction-stage"><p class="task-instruction">${question.instruction}</p><button class="folder-simulator" data-task-action="folder-open" aria-label="Pasta Curso, faca dois cliques"><span aria-hidden="true">📁</span><b>CURSO</b><small>2 cliques para abrir</small></button>${done}</div>`;
+  const selected = state.answers[state.stageIndex]?.[state.questionIndex], needsSupport = selected !== undefined && !completed, attempts = state.taskAttempts[taskKey()] || 0;
+  const done = completed ? '<p class="task-success">✓ Muito bem! Pode continuar.</p>' : needsSupport ? '<p class="task-skip">Tudo bem. Registramos que voce precisa de apoio nesta atividade.</p>' : '<p class="task-feedback" id="taskFeedback" aria-live="polite"></p>';
+  const helpAction = !completed && !needsSupport ? `<div class="task-options"><span>${attempts}/3 tentativas</span><button class="task-help-button" type="button" data-task-action="support">Nao sei / nao consigo</button></div>` : '';
+  if (question.type === 'mouse-click') return `<div class="interaction-stage"><p class="task-instruction">${question.instruction}</p><div class="mouse-simulator" aria-label="Mouse virtual"><button class="mouse-button mouse-left" data-task-action="mouse-left" aria-label="Botao esquerdo do mouse">Clique aqui</button><button class="mouse-button mouse-right" data-task-action="mouse-right" aria-label="Botao direito do mouse"></button><span class="mouse-wheel" aria-hidden="true"></span></div>${helpAction}${done}</div>`;
+  if (question.type === 'double-click') return `<div class="interaction-stage"><p class="task-instruction">${question.instruction}</p><button class="folder-simulator" data-task-action="folder-open" aria-label="Pasta Curso, faca dois cliques"><span aria-hidden="true">📁</span><b>CURSO</b><small>2 cliques para abrir</small></button>${helpAction}${done}</div>`;
   const pressed = steps.map(id => question.keys.find(key => key.id === id)?.label || '').join(' + ');
   const keyboard = keyboardRows.map(row => `<div class="keyboard-row">${row.map(key => `<button class="virtual-key ${key.wide ? 'wide' : ''} ${steps.includes(key.id) ? 'pressed' : ''}" data-task-action="${key.id}">${key.label}</button>`).join('')}</div>`).join('');
   return `<div class="interaction-stage keyboard-stage"><p class="task-instruction">${question.instruction}</p><div class="keyboard-help"><span aria-hidden="true">⌨️</span><div><b>Teclado de treino ja esta aberto</b><small>Para abrir o teclado virtual do Windows no dia a dia, procure o simbolo ⌨️ na barra de tarefas.</small></div></div><div class="typing-preview"><span>${pressed || '...'}</span><b>${steps.length === question.sequence.length ? question.result : ''}</b></div><div class="virtual-keyboard" aria-label="Teclado virtual de treino">${keyboard}</div>${done}</div>`;
 }
 
-function completeTask(question) {
+function completeTask(question, value = question.answer) {
   state.answers[state.stageIndex] ||= [];
-  state.answers[state.stageIndex][state.questionIndex] = question.answer;
+  state.answers[state.stageIndex][state.questionIndex] = value;
   save(); renderQuestion();
 }
 
 function taskFeedback(message) { const feedback = $('taskFeedback'); if (feedback) feedback.textContent = message; }
+function finishTaskWithSupport(question) { completeTask(question, `support-${taskKey()}`); }
+function registerTaskError(question, message) {
+  const key = taskKey(), attempts = (state.taskAttempts[key] || 0) + 1;
+  state.taskAttempts[key] = attempts;
+  if (attempts >= 3) { finishTaskWithSupport(question); return; }
+  save(); renderQuestion(); taskFeedback(`${message} Voce ainda tem ${3 - attempts} tentativa${attempts === 2 ? '' : 's'}.`);
+}
 
 function handleTaskAction(question, action) {
-  if (question.type === 'mouse-click') { if (action === question.answer) completeTask(question); else taskFeedback('Esse e o botao direito. Tente o outro lado.'); return; }
+  if (action === 'support') { finishTaskWithSupport(question); return; }
+  if (question.type === 'mouse-click') { if (action === question.answer) completeTask(question); else registerTaskError(question, 'Esse e o botao direito. Tente o outro lado.'); return; }
   if (question.type === 'double-click') { if (action === question.answer) completeTask(question); return; }
   const key = taskKey(), previous = state.taskSteps[key] || [], expected = question.sequence[previous.length];
   if (action !== expected) { state.taskSteps[key] = []; save(); renderQuestion(); taskFeedback('Quase! Comece novamente pela primeira tecla indicada.'); return; }
@@ -80,13 +91,17 @@ function renderQuestion() {
   $('quizTitle').textContent = stage.title;
   $('progressText').textContent = `${state.questionIndex + 1} de ${stage.questions.length}`;
   $('progressBar').style.width = `${((state.questionIndex + 1) / stage.questions.length) * 100}%`;
-  const content = question.type ? taskMarkup(question, selected === question.answer) : `<div class="options">${question.options.map((option, index) => `<label class="option ${selected === index ? 'selected' : ''}"><input type="radio" name="answer" value="${index}" ${selected === index ? 'checked' : ''}/><span class="option-key">${String.fromCharCode(65 + index)}</span><span class="option-text">${option}</span></label>`).join('')}</div>`;
+  const content = question.type ? taskMarkup(question, selected === question.answer) : `<div class="options">${question.options.map((option, index) => `<label class="option ${selected === index ? 'selected' : ''} ${selected !== undefined ? 'locked' : ''}"><input type="radio" name="answer" value="${index}" ${selected === index ? 'checked' : ''} ${selected !== undefined ? 'disabled' : ''}/><span class="option-key">${String.fromCharCode(65 + index)}</span><span class="option-text">${option}</span></label>`).join('')}</div>`;
   $('questionCard').innerHTML = `<div class="question-context"><span>${stage.icon}</span>${question.area}</div><h3>${question.prompt}</h3>${content}`;
   $('nextButton').disabled = selected === undefined;
-  $('backButton').hidden = state.questionIndex === 0 && state.stageIndex === 0;
   document.querySelectorAll('input[name="answer"]').forEach(input => input.addEventListener('change', (event) => { state.answers[state.stageIndex] ||= []; state.answers[state.stageIndex][state.questionIndex] = Number(event.target.value); save(); renderQuestion(); }));
-  if (question.type === 'double-click') document.querySelector('[data-task-action="folder-open"]')?.addEventListener('dblclick', () => handleTaskAction(question, 'folder-open'));
-  document.querySelectorAll('[data-task-action]').forEach(button => button.addEventListener('click', () => { if (question.type !== 'double-click') handleTaskAction(question, button.dataset.taskAction); else taskFeedback('Para abrir a pasta, faca dois cliques rapidos.'); }));
+  const folder = document.querySelector('[data-task-action="folder-open"]');
+  let folderClickTimer;
+  if (question.type === 'double-click') {
+    folder?.addEventListener('dblclick', () => { clearTimeout(folderClickTimer); handleTaskAction(question, 'folder-open'); });
+    folder?.addEventListener('click', () => { clearTimeout(folderClickTimer); folderClickTimer = setTimeout(() => { if (state.answers[state.stageIndex]?.[state.questionIndex] === undefined) registerTaskError(question, 'Foi um clique simples. Para abrir a pasta, faca dois cliques rapidos.'); }, 520); });
+  }
+  document.querySelectorAll('[data-task-action]').forEach(button => button.addEventListener('click', () => { if (button.dataset.taskAction === 'support') handleTaskAction(question, 'support'); else if (question.type !== 'double-click') handleTaskAction(question, button.dataset.taskAction); }));
 }
 
 function completeStage() {
@@ -121,23 +136,31 @@ function renderReport() {
   const correct = completedStages.reduce((sum, stage, s) => sum + stage.questions.reduce((count, question, q) => count + (state.answers[s]?.[q] === question.answer ? 1 : 0), 0), 0);
   const tiStage = stages.findIndex(stage => stage.id === 'ti'), tiApproved = tiStage >= 0 && state.stageScores[tiStage] >= stages[tiStage].threshold;
   const score = Math.round((correct / totalQuestions) * 100), rec = pickRecommendation(score, Number(state.profile.age), tiApproved), firstName = state.profile.name?.trim().split(' ')[0] || 'aluno(a)';
+  const supportCount = state.answers.flat().filter(answer => typeof answer === 'string' && answer.startsWith('support-')).length;
+  const completedStageData = completedStages.map((stage, index) => ({ title: stage.title, correct: state.stageScores[index] ?? 0, total: stage.questions.length }));
   $('reportName').textContent = firstName; $('reportLevel').textContent = rec.level; $('recommendationName').textContent = rec.name; $('recommendationSubtitle').textContent = rec.subtitle; $('totalScore').textContent = score; $('reportNarrative').textContent = rec.narrative;
   const skillData = [['Mouse e teclado',areaScore('mouse')],['Navegacao',areaScore('navegacao')],['Arquivos',areaScore('arquivos')],['Comunicacao',areaScore('comunicacao')],['Criar e resolver',areaScore('criacao') || areaScore('resolucao')]];
   $('skillList').innerHTML = skillData.map(([name, value]) => value === null ? `<div class="skill-row"><span>${name}</span><div class="skill-bar"><i style="width:0%"></i></div><b>A avaliar</b></div>` : `<div class="skill-row"><span>${name}</span><div class="skill-bar"><i style="width:${value}%"></i></div><b>${value}%</b></div>`).join('');
   $('nextSteps').innerHTML = rec.steps.map(step => `<li>${step}</li>`).join('');
+  $('reportProfile').textContent = state.profile.name || 'Aluno(a)';
+  $('reportProfileDetail').textContent = `${state.profile.age || '—'} anos${state.profile.unit ? ` · ${state.profile.unit}` : ''}`;
+  $('reportJourney').textContent = `${completedStageData.length} etapa${completedStageData.length === 1 ? '' : 's'}`;
+  $('reportJourneyDetail').textContent = `${correct} acerto${correct === 1 ? '' : 's'} em ${totalQuestions} atividade${totalQuestions === 1 ? '' : 's'}`;
+  $('reportSupport').textContent = supportCount ? `${supportCount} registro${supportCount === 1 ? '' : 's'}` : 'Sem registro';
+  $('reportSupportDetail').textContent = supportCount ? 'O aluno sinalizou apoio em atividades práticas.' : 'Nenhum pedido de apoio registrado nas atividades práticas.';
+  $('stageBreakdown').innerHTML = `<div class="report-section-label">ETAPAS PERCORRIDAS</div>${completedStageData.map(stage => `<div class="stage-result-row"><span>${stage.title}</span><b>${stage.correct}/${stage.total}</b></div>`).join('')}`;
   const today = new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date());
   $('reportDate').textContent = `Resultado gerado em ${today}.`; $('reportStudentDetails').textContent = `${state.profile.name || ''}${state.profile.age ? ` · ${state.profile.age} anos` : ''}${state.profile.unit ? ` · ${state.profile.unit}` : ''}`;
   $('stepLabel').textContent = 'Seu relatorio'; showView('reportView'); save(); window.scrollTo(0,0);
 }
 
-$('startButton').addEventListener('click', () => { showView('profileView'); $('stepLabel').textContent = 'Seu perfil'; setTimeout(() => $('studentName').focus(), 100); });
-$('profileForm').addEventListener('submit', (event) => { event.preventDefault(); state.profile = { name: $('studentName').value, age: $('studentAge').value, unit: $('studentUnit').value }; save(); state.stageIndex = 0; state.questionIndex = 0; showView('quizView'); renderQuestion(); window.scrollTo(0,0); });
+$('startButton').addEventListener('click', () => { editingProfile = false; $('profileSubmitButton').innerHTML = 'Ir para o teste <span aria-hidden="true">→</span>'; showView('profileView'); $('stepLabel').textContent = 'Seu perfil'; setTimeout(() => $('studentName').focus(), 100); });
+$('profileForm').addEventListener('submit', (event) => { event.preventDefault(); state.profile = { name: $('studentName').value, age: $('studentAge').value, unit: $('studentUnit').value }; save(); if (editingProfile) { editingProfile = false; renderReport(); return; } state.stageIndex = 0; state.questionIndex = 0; showView('quizView'); renderQuestion(); window.scrollTo(0,0); });
 $('nextButton').addEventListener('click', () => { if (state.questionIndex < stageQuestions().length - 1) { state.questionIndex++; save(); renderQuestion(); } else completeStage(); });
-$('backButton').addEventListener('click', () => { if (state.questionIndex > 0) { state.questionIndex--; } else if (state.stageIndex > 0) { state.stageIndex--; state.questionIndex = stageQuestions().length - 1; } save(); renderQuestion(); });
 $('continueStageButton').addEventListener('click', () => { state.stageIndex++; state.questionIndex = 0; save(); showView('quizView'); renderQuestion(); window.scrollTo(0,0); });
-$('restartButton').addEventListener('click', reset); $('printButton').addEventListener('click', () => window.print());
-$('editProfileButton').addEventListener('click', () => { $('studentName').value = state.profile.name || ''; $('studentAge').value = state.profile.age || ''; $('studentUnit').value = state.profile.unit || ''; showView('profileView'); $('stepLabel').textContent = 'Seu perfil'; });
-$('emailForm').addEventListener('submit', (event) => { event.preventDefault(); const email = $('emailTarget').value, name = state.profile.name || 'Aluno(a)', recommendation = $('recommendationName').textContent, score = $('totalScore').textContent; const subject = encodeURIComponent(`Relatorio de nivel - ${name}`); const body = encodeURIComponent(`Ola!\n\nSegue o resumo do teste de nivel de informatica de ${name}.\n\nRecomendacao inicial: ${recommendation}\nPontuacao: ${score}/100\n\nO relatorio completo pode ser impresso diretamente pelo aluno.`); window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; $('emailFeedback').textContent = 'Seu aplicativo de e-mail deve abrir com o resumo preenchido.'; });
+$('printButton').addEventListener('click', () => window.print());
+$('editProfileButton').addEventListener('click', () => { editingProfile = true; $('profileSubmitButton').textContent = 'Salvar dados e voltar ao relatorio'; $('studentName').value = state.profile.name || ''; $('studentAge').value = state.profile.age || ''; $('studentUnit').value = state.profile.unit || ''; showView('profileView'); $('stepLabel').textContent = 'Corrigir dados'; });
+$('emailForm').addEventListener('submit', (event) => { event.preventDefault(); const email = $('emailTarget').value, name = state.profile.name || 'Aluno(a)', recommendation = $('recommendationName').textContent, score = $('totalScore').textContent, narrative = $('reportNarrative').textContent, journey = $('reportJourneyDetail').textContent, support = $('reportSupport').textContent, skillSummary = [...document.querySelectorAll('.skill-row')].map(row => `${row.querySelector('span').textContent}: ${row.querySelector('b').textContent}`).join('\n'), steps = [...document.querySelectorAll('#nextSteps li')].map((step, index) => `${index + 1}. ${step.textContent}`).join('\n'); const subject = encodeURIComponent(`Relatorio de nivel - ${name}`); const body = encodeURIComponent(`Ola!\n\nSegue o resumo completo do teste de nivel de informatica de ${name}.\n\nRECOMENDACAO INICIAL\n${recommendation}\nPontuacao geral: ${score}/100\nPercurso: ${journey}\nApoio pratico: ${support}\n\nO QUE OBSERVAMOS\n${narrative}\n\nCOMPETENCIAS AVALIADAS\n${skillSummary}\n\nPROXIMOS PASSOS\n${steps}\n\nO relatorio visual completo esta pronto para impressao no teste da All Net Educacao.`); window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; $('emailFeedback').textContent = 'Seu aplicativo de e-mail deve abrir com o resumo completo preenchido.'; });
 
 function registerWebMcp() { const context = document.modelContext; if (!context?.registerTool) return; const controller = new AbortController(); try { Promise.resolve(context.registerTool({ name:'reiniciar_teste_de_nivel', title:'Reiniciar teste de nivel', description:'Apaga as respostas locais e abre o inicio do teste para um novo aluno.', inputSchema:{type:'object',properties:{},additionalProperties:false}, annotations:{readOnlyHint:false,untrustedContentHint:false}, execute(){ reset(); return {status:'reiniciado'}; } },{signal:controller.signal})).catch(()=>{}); } catch (_) {} }
 registerWebMcp();

@@ -7,6 +7,10 @@
 .task-instruction { margin: 0; color: #435a79; font-size: .95rem; font-weight: 600; text-align: center; }
 .task-feedback { min-height: 20px; margin: 0; color: #376de7; font-size: .85rem; font-weight: 700; text-align: center; }
 .task-success { min-height: 20px; margin: 0; color: #18866b; font-size: .85rem; font-weight: 700; text-align: center; }
+.task-skip { min-height: 20px; margin: 0; color: #7c5a18; font-size: .85rem; font-weight: 700; text-align: center; }
+.task-options { display: flex; align-items: center; justify-content: center; gap: 13px; color: #697b92; font-size: .76rem; }
+.task-help-button { padding: 8px 11px; border: 1px solid #bdcde4; border-radius: 8px; background: #fff; color: #50667f; cursor: pointer; font-weight: 700; }
+.task-help-button:hover { border-color: #376de7; color: #2459ca; background: #f7faff; }
 .mouse-simulator { position: relative; width: 160px; height: 205px; overflow: hidden; border: 6px solid #1c365a; border-radius: 72px 72px 46px 46px; background: #fff; box-shadow: 0 14px 22px rgba(16,36,63,.15); }
 .mouse-button { position: absolute; top: 0; width: 50%; height: 92px; border: 0; cursor: pointer; font: 700 .76rem "DM Sans", sans-serif; transition: background .15s, transform .15s; }
 .mouse-button:hover { background: #dce8ff; transform: translateY(2px); }
@@ -32,3 +36,40 @@
 .virtual-key:hover, .virtual-key.pressed { transform: translateY(3px); box-shadow: 0 1px 0 #b9c8dd; background: #ffdc9d; }
 .virtual-key.wide { flex: 1.7 1 0; font: 700 .72rem "DM Sans", sans-serif; }
 @media (max-width: 640px) { .mouse-simulator { transform: scale(.9); margin: -8px 0; } .interaction-stage { padding-inline: 8px; } .virtual-keyboard { padding: 8px; gap: 5px; } .keyboard-row { gap: 4px; } .virtual-key { height: 37px; font-size: .69rem; } .virtual-key.wide { font-size: .61rem; } .keyboard-help small { font-size: .68rem; } }
+
+/* Identidade visual All Net Educação */
+:root { --ink: #121929; --navy: #07111f; --blue: #1556e8; --sky: #dcf8ff; --yellow: #f45b2c; --cream: #f8fafc; --paper: #ffffff; --line: #dce3ee; --green: #168a78; --shadow: 0 22px 55px rgba(7,17,31,.12); }
+body { background: radial-gradient(circle at 86% 4%, rgba(21,86,232,.13) 0, transparent 26rem), #f8fafc; }
+.brand { gap: 12px; letter-spacing: 0; }
+.allnet-logo { display: block; width: 131px; height: auto; }
+.brand-divider { width: 1px; height: 28px; background: #d8e0eb; }
+.brand-test { color: #4d5d71; font: 700 .78rem "DM Sans", Arial, sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+.welcome-copy h1, .form-card h2, .quiz-header h2, .checkpoint-card h2, .report-head h2 { font-family: "DM Sans", Arial, sans-serif; font-weight: 700; letter-spacing: -.055em; }
+.welcome-copy h1 em { color: var(--blue); }
+.primary-button { color: #fff; background: var(--yellow); box-shadow: 0 7px 0 #ce4923; }
+.primary-button:hover { box-shadow: 0 9px 0 #ce4923; }
+.primary-button:active { box-shadow: 0 3px 0 #ce4923; }
+.eyebrow { color: var(--blue); }
+.question-context { color: #0a8b95; }
+.report-highlight { background: var(--navy); }
+.report-seal { border-color: var(--yellow); }
+.report-highlight h3, .report-body h3, .email-panel h3 { font-family: "DM Sans", Arial, sans-serif; }
+.next-steps { background: #eef6ff; }
+.quiz-actions-forward { justify-content: flex-end; }
+.option.locked { cursor: default; }
+.option.locked:not(.selected) { opacity: .68; }
+.report-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 28px 52px 0; }
+.report-summary-card { min-width: 0; padding: 17px 18px; border: 1px solid #dce5f1; border-radius: 13px; background: linear-gradient(135deg, #fff, #f4f8ff); }
+.report-summary-card > span, .report-section-label { display: block; color: #526983; font: 700 .67rem "DM Sans", Arial, sans-serif; letter-spacing: .08em; }
+.report-summary-card > strong { display: block; margin: 8px 0 5px; overflow-wrap: anywhere; color: var(--navy); font: 700 1rem/1.25 "DM Sans", Arial, sans-serif; }
+.report-summary-card > small { display: block; color: #66768b; font-size: .76rem; line-height: 1.35; }
+.report-support-card { border-color: #b9e4ea; background: linear-gradient(135deg, #f5feff, #eefaff); }
+.report-support-card > strong { color: #0a7580; }
+.report-section-label { margin: 28px 0 12px; color: #1556e8; }
+.stage-breakdown { margin-top: 24px; padding-top: 1px; border-top: 1px solid #e2e9f2; }
+.stage-breakdown .report-section-label { margin-top: 18px; }
+.stage-result-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #edf1f6; color: #536174; font-size: .84rem; }
+.stage-result-row b { flex: 0 0 auto; padding: 4px 7px; border-radius: 7px; background: #e8efff; color: #1556e8; font: 700 .74rem "DM Mono", monospace; }
+@media (max-width: 640px) { .report-summary-grid { grid-template-columns: 1fr; padding: 20px 24px 0; } .report-summary-card { padding: 15px 16px; } }
+@media print { .report-summary-grid { padding-top: 20px; } .report-summary-card { break-inside: avoid; } .stage-breakdown, .next-steps { break-inside: avoid; } }
+@media (max-width: 640px) { .brand-divider, .brand-test { display: none; } .allnet-logo { width: 123px; } }
