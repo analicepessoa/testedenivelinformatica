@@ -6,18 +6,18 @@ const stages = [
     { area: 'Ingles do computador', prompt: 'A palavra “mouse” no computador se refere a:', options: ['Um arquivo', 'Um aparelho para apontar e clicar', 'Uma senha'], answer: 1 }
   ]},
   { id: 'autonomy', title: 'Autonomia digital', icon: '🌐', threshold: 3, questions: [
-    { area: 'Navegacao', prompt: 'Voce quer pesquisar uma receita na internet. Qual e um bom primeiro passo?', options: ['Abrir o navegador e digitar palavras sobre a receita', 'Desligar o computador', 'Abrir a calculadora'], answer: 0 },
-    { area: 'Navegacao', prompt: 'O que acontece ao abrir uma nova aba no navegador?', options: ['Apaga o que estava aberto', 'Permite visitar outro site sem fechar o anterior', 'Aumenta o volume do computador'], answer: 1 },
-    { area: 'Arquivos', prompt: 'Depois de baixar uma foto, onde voce costuma procurar por ela?', options: ['Na pasta Downloads', 'No teclado', 'Dentro do monitor'], answer: 0 },
-    { area: 'Comunicacao', prompt: 'Para mandar uma mensagem com documento para alguem por e-mail, o mais comum e:', options: ['Anexar o arquivo antes de enviar', 'Imprimir a tela', 'Trocar a senha do computador'], answer: 0 },
-    { area: 'Seguranca', prompt: 'Qual e uma boa atitude ao receber uma mensagem estranha pedindo sua senha?', options: ['Enviar a senha logo para resolver', 'Nao clicar e pedir ajuda a alguem de confianca', 'Repassar para todos os contatos'], answer: 1 }
+    { area: 'Navegacao', prompt: 'Voce quer encontrar uma receita especifica na internet. Qual estrategia costuma trazer melhores resultados?', options: ['Abrir o navegador e buscar usando palavras-chave da receita', 'Abrir o primeiro resultado salvo nos favoritos, mesmo sem saber o assunto', 'Digitar o nome da receita em um arquivo de texto e procurar depois'], answer: 0 },
+    { area: 'Navegacao', prompt: 'Ao abrir uma nova aba no navegador enquanto le uma noticia, o que voce consegue fazer?', options: ['Manter a noticia aberta e consultar outra pagina em paralelo', 'Salvar automaticamente a noticia como PDF', 'Criar uma conta nova no navegador'], answer: 0 },
+    { area: 'Arquivos', prompt: 'Depois de baixar uma foto pelo navegador, qual lugar voce verifica primeiro para localiza-la?', options: ['A pasta Downloads', 'O historico de paginas visitadas', 'A lixeira do computador'], answer: 0 },
+    { area: 'Comunicacao', prompt: 'Para enviar por e-mail um curriculo que esta salvo no computador, qual e o procedimento mais indicado?', options: ['Usar o botao de anexo e selecionar o arquivo', 'Escrever o nome do arquivo no campo Assunto', 'Copiar o arquivo para a pasta Enviados antes de escrever a mensagem'], answer: 0 },
+    { area: 'Seguranca', prompt: 'Uma mensagem inesperada pede para voce confirmar sua senha por um link. Qual e a melhor atitude?', options: ['Acessar o site oficial por conta propria e conferir a solicitacao', 'Responder a mensagem pedindo que enviem um segundo link', 'Abrir o link em outra aba para verificar se ele parece conhecido'], answer: 0 }
   ]},
   { id: 'productive', title: 'Criar e resolver', icon: '🚀', threshold: 3, questions: [
-    { area: 'Arquivos', prompt: 'Qual nome de arquivo ajuda mais a encontrar um trabalho depois?', options: ['documento-novo-final-agora', 'Trabalho_Ciencias_Ana_Setembro', 'aaaa'], answer: 1 },
-    { area: 'Organizacao', prompt: 'Para deixar fotos de uma viagem juntas, a melhor opcao e:', options: ['Criar uma pasta com um nome claro', 'Apagar todas as fotos', 'Misturar com arquivos aleatorios'], answer: 0 },
-    { area: 'Produtividade', prompt: 'Em uma planilha, as linhas e colunas servem principalmente para:', options: ['Organizar informacoes em uma tabela', 'Desenhar na tela', 'Trocar a imagem do fundo'], answer: 0 },
-    { area: 'Resolucao', prompt: 'Um site nao abre. Antes de desistir, qual tentativa faz sentido?', options: ['Conferir a internet e atualizar a pagina', 'Apagar todos os arquivos do computador', 'Apertar teclas aleatorias por muito tempo'], answer: 0 },
-    { area: 'Criacao', prompt: 'Qual projeto combina melhor com ferramentas digitais atuais?', options: ['Montar uma apresentacao para explicar uma ideia', 'Evitar salvar qualquer arquivo', 'Nunca usar o navegador'], answer: 0 }
+    { area: 'Arquivos', prompt: 'Qual nome permite identificar melhor um trabalho escolar meses depois?', options: ['Trabalho_Ciencias_Ana_Setembro', 'Trabalho-final-revisado', 'Documento1'], answer: 0 },
+    { area: 'Organizacao', prompt: 'Voce quer guardar as fotos de uma viagem de modo que possa encontra-las depois. Qual e a melhor escolha?', options: ['Criar uma pasta com nome e data claros', 'Deixar todas na area de trabalho e ordenar por icone', 'Marcar cada foto como favorita no navegador'], answer: 0 },
+    { area: 'Produtividade', prompt: 'Em uma planilha para controlar gastos, por que usar linhas e colunas?', options: ['Para organizar categorias, datas e valores de forma comparavel', 'Para aplicar uma fonte diferente em cada frase', 'Para transformar a planilha em uma apresentacao automaticamente'], answer: 0 },
+    { area: 'Resolucao', prompt: 'Um site que normalmente funciona nao abre. Qual e uma boa primeira verificacao?', options: ['Conferir a conexao e atualizar a pagina', 'Limpar todos os dados do navegador imediatamente', 'Reiniciar o computador antes de testar qualquer outra coisa'], answer: 0 },
+    { area: 'Criacao', prompt: 'Voce vai montar uma apresentacao para explicar uma ideia. Qual pratica ajuda mais o publico a entender?', options: ['Organizar as ideias em uma sequencia curta de slides', 'Colocar todo o texto em um unico slide para nao esquecer nada', 'Escolher animacoes complexas antes de definir o conteudo'], answer: 0 }
   ]}
 ];
 
