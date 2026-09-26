@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#10243f" />
+    <meta name="description" content="Teste de nivel de informatica: uma avaliacao acolhedora e progressiva." />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2310243f'/%3E%3Cpath d='M15 17h34v24H15z' fill='none' stroke='%23ffbd59' stroke-width='4'/%3E%3Cpath d='M25 47h14M32 41v6' stroke='%23ffbd59' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <title>Rota Digital | Teste de Nivel</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="overrides.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar no-print">
+        <a class="brand" href="#inicio" aria-label="Rota Digital, inicio">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="7" y="8" width="34" height="23" rx="3"/><path d="M17 40h14m-7-9v9"/></svg></span>
+          <span>ROTA <b>DIGITAL</b></span>
+        </a>
+        <span class="step-label" id="stepLabel">Boas-vindas</span>
+        <button class="text-button" id="restartButton" type="button" hidden>Recomecar</button>
+      </header>
+
+      <section class="view active" id="welcomeView" aria-labelledby="welcomeTitle">
+        <div class="welcome-copy">
+          <p class="eyebrow">AULA ZERO · INFORMATICA</p>
+          <h1 id="welcomeTitle">Vamos descobrir sua<br /><em>rota digital.</em></h1>
+          <p class="lead">Uma conversa pratica sobre o que voce ja sabe. Nao e uma prova: e o primeiro passo para encontrar a turma em que voce vai aprender melhor.</p>
+          <div class="route-points" aria-label="Como funciona">
+            <span><i>1</i> Comecamos pelo essencial</span>
+            <span><i>2</i> Avancamos no seu ritmo</span>
+            <span><i>3</i> Voce recebe seu relatorio</span>
+          </div>
+          <button class="primary-button" id="startButton" type="button">Comecar meu teste <span aria-hidden="true">→</span></button>
+          <p class="privacy-note">Seus dados ficam somente neste computador ate o envio escolhido pela escola.</p>
+        </div>
+        <div class="welcome-art" aria-label="Ilustracao de computador e habilidades digitais">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="screen-card">
+            <div class="screen-top"><span></span><span></span><span></span></div>
+            <div class="screen-content"><span class="code-line long"></span><span class="code-line medium"></span><span class="code-line short"></span><div class="mini-chart"><i></i><i></i><i></i><i></i></div></div>
+          </div>
+          <div class="keyboard-art"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="skill-chip chip-mouse">🖱️ Mouse</div><div class="skill-chip chip-keyboard">⌨️ Teclado</div><div class="skill-chip chip-email">✉️ E-mail</div>
+        </div>
+      </section>
+
+      <section class="view" id="profileView" aria-labelledby="profileTitle">
+        <div class="form-card intro-card">
+          <p class="eyebrow">ANTES DE COMECAR</p>
+          <h2 id="profileTitle">Como podemos te chamar?</h2>
+          <p>Essas informacoes aparecerao no seu relatorio.</p>
+          <form id="profileForm">
+            <label>Nome completo <input id="studentName" name="studentName" autocomplete="name" required placeholder="Digite seu nome" /></label>
+            <div class="input-row"><label>Idade <input id="studentAge" name="studentAge" type="number" min="5" max="120" inputmode="numeric" placeholder="Ex.: 16" /></label><label>Unidade / cidade <input id="studentUnit" name="studentUnit" placeholder="Ex.: Taubate" /></label></div>
+            <button class="primary-button" type="submit">Ir para o teste <span aria-hidden="true">→</span></button>
+          </form>
+        </div>
+      </section>
+
+      <section class="view" id="quizView" aria-labelledby="quizTitle">
+        <div class="quiz-header no-print"><div><p class="eyebrow" id="stageEyebrow">ETAPA 1 DE 3</p><h2 id="quizTitle">Primeiros passos</h2></div><div class="progress-wrap"><span id="progressText">1 de 4</span><div class="progress-track"><span id="progressBar"></span></div></div></div>
+        <article class="question-card" id="questionCard" aria-live="polite"></article>
+        <div class="quiz-actions no-print"><button class="secondary-button" id="backButton" type="button">← Voltar</button><button class="primary-button" id="nextButton" type="button" disabled>Continuar <span aria-hidden="true">→</span></button></div>
+      </section>
+
+      <section class="view" id="stageResultView" aria-labelledby="stageResultTitle">
+        <div class="checkpoint-card"><span class="checkpoint-icon">✦</span><p class="eyebrow">ETAPA CONCLUIDA</p><h2 id="stageResultTitle">Muito bem!</h2><p id="stageResultText"></p><div class="checkpoint-score"><strong id="stageScore">0%</strong><span>de acertos nesta etapa</span></div><button class="primary-button" id="continueStageButton" type="button">Continuar a descoberta <span aria-hidden="true">→</span></button></div>
+      </section>
+
+      <section class="view" id="reportView" aria-labelledby="reportTitle">
+        <div class="report-toolbar no-print"><button class="secondary-button" id="editProfileButton" type="button">Editar dados</button><button class="secondary-button" id="printButton" type="button">🖨 Imprimir relatorio</button></div>
+        <article class="report-paper" id="reportPaper">
+          <header class="report-head"><div><p class="eyebrow">RELATORIO DE DIRECIONAMENTO · AULA ZERO</p><h2 id="reportTitle">Seu ponto de partida, <span id="reportName">aluno(a)</span>.</h2><p id="reportDate"></p></div><span class="report-seal" id="reportLevel">N1</span></header>
+          <section class="report-highlight"><div><p>RECOMENDACAO INICIAL</p><h3 id="recommendationName">Inclusao Digital</h3><span id="recommendationSubtitle">Uma base tranquila para ganhar confianca.</span></div><div class="score-orb"><strong id="totalScore">0</strong><small>pontos<br />de 100</small></div></section>
+          <section class="report-body"><div><h3>O que observamos</h3><p id="reportNarrative"></p><div class="skill-list" id="skillList"></div></div><aside class="next-steps"><h3>Proximos passos</h3><ol id="nextSteps"></ol><p class="small-note">Esta recomendacao e um ponto de partida. A equipe pode ajusta-la apos uma conversa com voce.</p></aside></section>
+          <section class="email-panel no-print"><div><span class="mail-icon">✉</span><div><h3>Enviar uma copia por e-mail</h3><p>Informe o e-mail da secretaria ou do responsavel. Seu aplicativo de e-mail abrira com o resumo pronto.</p></div></div><form id="emailForm"><label class="sr-only" for="emailTarget">E-mail para envio</label><input id="emailTarget" type="email" required placeholder="email@exemplo.com" /><button class="primary-button" type="submit">Preparar e-mail</button></form><p class="email-feedback" id="emailFeedback" aria-live="polite"></p></section>
+          <footer class="report-footer"><span>Rota Digital · avaliacao inicial de informatica</span><span id="reportStudentDetails"></span></footer>
+        </article>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

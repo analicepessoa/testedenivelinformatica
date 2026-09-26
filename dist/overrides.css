@@ -1,0 +1,4 @@
+.skill-row { grid-template-columns: 150px 1fr 58px; }
+.skill-row b { text-align: right; }
+.skill-row b:not(:empty) { white-space: nowrap; }
+@media (max-width: 640px) { .skill-row { grid-template-columns: 115px 1fr 58px; } }
