@@ -78,6 +78,15 @@
           <section class="email-panel no-print"><div><span class="mail-icon">✉</span><div><h3>Enviar o resumo completo por e-mail</h3><p>Informe o e-mail da secretaria ou do responsavel. O relatorio sera enviado automaticamente, sem abrir outro aplicativo.</p></div></div><form id="emailForm"><label class="sr-only" for="emailTarget">E-mail para envio</label><input id="emailTarget" type="email" required placeholder="email@exemplo.com" /><button class="primary-button" id="sendEmailButton" type="submit">Enviar relatorio agora</button></form><p class="email-feedback" id="emailFeedback" aria-live="polite"></p></section>
           <footer class="report-footer"><span>All Net Educacao · avaliacao inicial de informatica</span><span id="reportStudentDetails"></span></footer>
         </article>
+        <article class="print-direction-sheet" aria-label="Ficha de direcionamento para impressao">
+          <header class="print-sheet-head"><div><strong>ALL NET EDUCACAO</strong><span>AULA ZERO: DIAGNOSTICO E DIRECIONAMENTO</span></div><small>SISTEMA DE AVALIACAO DE PERFIL TECNOLOGICO</small></header>
+          <section class="print-section print-identification"><h3><b>1.</b> IDENTIFICACAO DO ALUNO</h3><div class="print-identification-grid"><p><strong>Aluno:</strong><span id="printStudent">-</span></p><p><strong>Idade:</strong><span id="printAge">-</span></p><p class="print-wide"><strong>Unidade / cidade:</strong><span id="printUnit">-</span></p><p class="print-wide"><strong>Avaliacao realizada em:</strong><span id="printDate">-</span></p></div></section>
+          <section class="print-section"><h3><b>2.</b> MATRIZ DE AVALIACAO DE COMPETENCIAS</h3><div class="print-matrix"><div class="print-matrix-head"><span>INDICADORES / COMPETENCIAS OBSERVADAS</span><span>NAO EXECUTA</span><span>COM SUPORTE</span><span>AUTONOMO</span></div><div id="printSkillMatrix"></div></div></section>
+          <section class="print-section"><h3><b>3.</b> PARECER E DIRECIONAMENTO DE TURMA</h3><p class="print-auto-note" id="printNarrative"></p><div class="print-route-grid" id="printRouteGrid"></div></section>
+          <section class="print-section print-observations"><h3><b>4.</b> CONSIDERACOES DA EQUIPE</h3><p>Resultado automatico: <strong id="printScore">-</strong> &middot; Apoio pratico: <strong id="printSupport">-</strong></p><div class="print-writing-lines" aria-label="Espaco para observacoes manuais"></div></section>
+          <section class="print-section print-final"><h3><b>5.</b> DEFINICAO FINAL</h3><p class="print-course"><strong>Turma recomendada:</strong><span id="printCourse">-</span></p><div class="print-signatures"><div><span></span><strong>Assinatura do Professor / Avaliador</strong><small>Responsavel tecnico</small></div><div><span></span><strong>Assinatura do Aluno ou Responsavel</strong><small>Ciente do direcionamento recomendado</small></div></div></section>
+          <footer class="print-sheet-footer">Ficha de Direcionamento Tecnico &bull; Aula Zero</footer>
+        </article>
       </section>
     </main>
     <script src="app.js?v=email-direto-1"></script>

@@ -153,6 +153,26 @@ function renderReport() {
   $('stageBreakdown').innerHTML = `<div class="report-section-label">ETAPAS PERCORRIDAS</div>${completedStageData.map(stage => `<div class="stage-result-row"><span>${stage.title}</span><b>${stage.correct}/${stage.total}</b></div>`).join('')}`;
   const today = new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date());
   $('reportDate').textContent = `Resultado gerado em ${today}.`; $('reportStudentDetails').textContent = `${state.profile.name || ''}${state.profile.age ? ` · ${state.profile.age} anos` : ''}${state.profile.unit ? ` · ${state.profile.unit}` : ''}`;
+  const printSkills = [
+    ['Interacao fisica e hardware', 'Mouse, teclado e comandos iniciais.', skillData[0][1]],
+    ['Navegacao e autonomia digital', 'Pesquisa, abas e uso do navegador.', skillData[1][1]],
+    ['Comunicacao e redes', 'Uso de e-mail e comunicacao digital.', skillData[3][1]],
+    ['Gestao de arquivos', 'Pastas, downloads e localizacao de arquivos.', skillData[2][1]],
+    ['Logica e resolucao de problemas', 'Criacao, produtividade e primeiras verificacoes.', skillData[4][1]]
+  ];
+  $('printStudent').textContent = state.profile.name || '-'; $('printAge').textContent = state.profile.age ? `${state.profile.age} anos` : '-'; $('printUnit').textContent = state.profile.unit || '-'; $('printDate').textContent = today;
+  $('printSkillMatrix').innerHTML = printSkills.map(([name, detail, value]) => {
+    const level = value === null ? -1 : value === 0 ? 0 : value < 70 ? 1 : 2;
+    return `<div class="print-matrix-row ${level < 0 ? 'not-assessed' : ''}"><div><strong>${name}</strong><small>${detail}${level < 0 ? ' Ainda nao avaliado.' : ''}</small></div>${[0,1,2].map(index => `<span class="print-check ${level === index ? 'checked' : ''}" aria-label="${level === index ? 'Marcado' : 'Nao marcado'}"></span>`).join('')}</div>`;
+  }).join('');
+  const routes = [
+    ['Informatica Senior', 'Para pessoas com mais de 50 anos que precisam de uma base calma e guiada.'],
+    ['Informatica Educacional', 'Para criancas e adolescentes de ate 13 anos aprenderem criando.'],
+    ['Informatica 5.0', 'Projetos, produtividade e tecnologia aplicada ao cotidiano.'],
+    ['T.I. - Tecnologia da Educacao', 'Trilha avancada para desafios tecnicos e resolucao de problemas.']
+  ];
+  $('printRouteGrid').innerHTML = routes.map(([name, detail]) => `<div class="print-route-card ${rec.name === name ? 'selected' : ''}"><span class="print-check ${rec.name === name ? 'checked' : ''}" aria-hidden="true"></span><div><strong>${name}</strong><small>${detail}</small></div></div>`).join('');
+  $('printNarrative').textContent = rec.narrative; $('printScore').textContent = `${score}/100`; $('printSupport').textContent = supportCount ? `${supportCount} registro${supportCount === 1 ? '' : 's'} de apoio` : 'sem registro'; $('printCourse').textContent = rec.name;
   $('stepLabel').textContent = 'Seu relatorio'; showView('reportView'); save(); window.scrollTo(0,0);
 }
 
