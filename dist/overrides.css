@@ -68,6 +68,12 @@ body { background: radial-gradient(circle at 86% 4%, rgba(21,86,232,.13) 0, tran
 .report-support-card { border-color: #b9e4ea; background: linear-gradient(135deg, #f5feff, #eefaff); }
 .report-support-card > strong { color: #0a7580; }
 .email-panel .primary-button:disabled { cursor: wait; opacity: .68; transform: none; box-shadow: none; }
+.form-card select { min-width: 0; padding: 13px 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); outline: none; }
+.form-card select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #dce8ff; }
+.delivery-notice { display: flex; gap: 14px; max-width: 900px; margin: 16px auto 0; padding: 18px 22px; border: 1px solid #b8e5dd; border-radius: 14px; background: #f2fffb; }
+.delivery-notice > span { display: grid; place-items: center; flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%; background: #168a78; color: #fff; font-weight: 800; }
+.delivery-notice h3 { margin: 0 0 4px; color: #125d52; font: 700 1rem "DM Sans", Arial, sans-serif; }
+.delivery-notice p { margin: 0; color: #507269; font-size: .86rem; line-height: 1.4; }
 .report-section-label { margin: 28px 0 12px; color: #1556e8; }
 .stage-breakdown { margin-top: 24px; padding-top: 1px; border-top: 1px solid #e2e9f2; }
 .stage-breakdown .report-section-label { margin-top: 18px; }
@@ -134,4 +140,9 @@ body { background: radial-gradient(circle at 86% 4%, rgba(21,86,232,.13) 0, tran
   .print-signatures strong { margin-top: 4px; color: #44546a; font-size: 8.7px; }
   .print-signatures small { margin-top: 2px; color: #8494aa; font-size: 7.8px; }
   .print-sheet-footer { margin-top: 10px; color: #92a1b6; font-size: 8px; text-align: right; }
+}
+
+@media print {
+  .print-direction-sheet { display: none !important; }
+  .report-paper { display: block !important; max-width: none; border: 0; box-shadow: none; }
 }

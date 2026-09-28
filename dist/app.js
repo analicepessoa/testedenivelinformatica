@@ -41,10 +41,15 @@ const views = ['welcomeView','profileView','quizView','stageResultView','reportV
 const emailDelivery = Object.freeze({ serviceId: 'service_9p1t2ug', templateId: 'template_52uvcqn', publicKey: '8kxy0FP5TeTYlRtGm' });
 let editingProfile = false;
 let lastEmailSentAt = 0;
+let technicalReport = null;
+const unitRoutes = Object.freeze({
+  pinda: { label: 'All Net Pindamonhangaba', email: 'secretariaallnetpinda@gmail.com' },
+  taubate: { label: 'All Net Taubate', email: 'admtaubate.allnet@gmail.com' }
+});
 
 function showView(id) { views.forEach(v => $(v).classList.toggle('active', v === id)); }
 function save() { localStorage.setItem('rotaDigitalAssessment', JSON.stringify(state)); }
-function reset() { Object.assign(state, { profile: {}, stageIndex: 0, questionIndex: 0, answers: [], stageScores: [], taskSteps: {}, taskAttempts: {}, lastStageScore: 0 }); localStorage.removeItem('rotaDigitalAssessment'); showView('welcomeView'); $('stepLabel').textContent = 'Boas-vindas'; window.scrollTo(0,0); }
+function reset() { Object.assign(state, { profile: {}, stageIndex: 0, questionIndex: 0, answers: [], stageScores: [], taskSteps: {}, taskAttempts: {}, lastStageScore: 0, deliverySignature: '' }); technicalReport = null; localStorage.removeItem('rotaDigitalAssessment'); showView('welcomeView'); $('stepLabel').textContent = 'Boas-vindas'; window.scrollTo(0,0); }
 function stageQuestions() { return stages[state.stageIndex].questions; }
 function taskKey() { return `${state.stageIndex}-${state.questionIndex}`; }
 
@@ -140,19 +145,22 @@ function renderReport() {
   const score = Math.round((correct / totalQuestions) * 100), rec = pickRecommendation(score, Number(state.profile.age), tiApproved), firstName = state.profile.name?.trim().split(' ')[0] || 'aluno(a)';
   const supportCount = state.answers.flat().filter(answer => typeof answer === 'string' && answer.startsWith('support-')).length;
   const completedStageData = completedStages.map((stage, index) => ({ title: stage.title, correct: state.stageScores[index] ?? 0, total: stage.questions.length }));
-  $('reportName').textContent = firstName; $('reportLevel').textContent = rec.level; $('recommendationName').textContent = rec.name; $('recommendationSubtitle').textContent = rec.subtitle; $('totalScore').textContent = score; $('reportNarrative').textContent = rec.narrative;
   const skillData = [['Mouse e teclado',areaScore('mouse')],['Navegacao',areaScore('navegacao')],['Arquivos',areaScore('arquivos')],['Comunicacao',areaScore('comunicacao')],['Criar e resolver',areaScore('criacao') || areaScore('resolucao')]];
+  const unit = unitRoutes[state.profile.unit] || { label: state.profile.unit || '—', email: null };
+  technicalReport = { rec, score, supportCount, correct, totalQuestions, completedStageData, skillData, name: state.profile.name || 'Aluno(a)', age: state.profile.age || '—', unit: unit.label, recipientEmail: unit.email };
+  $('reportName').textContent = firstName; $('reportLevel').textContent = 'OK'; $('recommendationName').textContent = 'Seu resultado foi registrado'; $('recommendationSubtitle').textContent = 'A equipe vai conversar com voce sobre os proximos passos.'; $('totalScore').textContent = score; $('reportNarrative').textContent = 'Voce concluiu a avaliacao inicial. Esta pontuacao ajuda a equipe a entender quais habilidades voce ja praticou e quais experiencias podem apoiar seu aprendizado.';
   $('skillList').innerHTML = skillData.map(([name, value]) => value === null ? `<div class="skill-row"><span>${name}</span><div class="skill-bar"><i style="width:0%"></i></div><b>A avaliar</b></div>` : `<div class="skill-row"><span>${name}</span><div class="skill-bar"><i style="width:${value}%"></i></div><b>${value}%</b></div>`).join('');
-  $('nextSteps').innerHTML = rec.steps.map(step => `<li>${step}</li>`).join('');
+  $('nextSteps').innerHTML = ['Valorizar o que voce ja conseguiu fazer.','Continuar praticando com curiosidade e tranquilidade.','Conversar com a equipe sobre seus interesses em tecnologia.'].map(step => `<li>${step}</li>`).join('');
   $('reportProfile').textContent = state.profile.name || 'Aluno(a)';
-  $('reportProfileDetail').textContent = `${state.profile.age || '—'} anos${state.profile.unit ? ` · ${state.profile.unit}` : ''}`;
+  $('reportProfileDetail').textContent = `${state.profile.age || '—'} anos${unit.label ? ` · ${unit.label}` : ''}`;
   $('reportJourney').textContent = `${completedStageData.length} etapa${completedStageData.length === 1 ? '' : 's'}`;
   $('reportJourneyDetail').textContent = `${correct} acerto${correct === 1 ? '' : 's'} em ${totalQuestions} atividade${totalQuestions === 1 ? '' : 's'}`;
-  $('reportSupport').textContent = supportCount ? `${supportCount} registro${supportCount === 1 ? '' : 's'}` : 'Sem registro';
-  $('reportSupportDetail').textContent = supportCount ? 'O aluno sinalizou apoio em atividades práticas.' : 'Nenhum pedido de apoio registrado nas atividades práticas.';
+  $('reportSupport').textContent = supportCount ? `${supportCount} momento${supportCount === 1 ? '' : 's'}` : 'Concluida';
+  $('reportSupportDetail').textContent = supportCount ? 'Voce sinalizou quando precisou de ajuda em uma atividade.' : 'Voce realizou as atividades praticas sem pedir apoio.';
   $('stageBreakdown').innerHTML = `<div class="report-section-label">ETAPAS PERCORRIDAS</div>${completedStageData.map(stage => `<div class="stage-result-row"><span>${stage.title}</span><b>${stage.correct}/${stage.total}</b></div>`).join('')}`;
   const today = new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date());
-  $('reportDate').textContent = `Resultado gerado em ${today}.`; $('reportStudentDetails').textContent = `${state.profile.name || ''}${state.profile.age ? ` · ${state.profile.age} anos` : ''}${state.profile.unit ? ` · ${state.profile.unit}` : ''}`;
+  technicalReport.date = today;
+  $('reportDate').textContent = `Resultado gerado em ${today}.`; $('reportStudentDetails').textContent = `${state.profile.name || ''}${state.profile.age ? ` · ${state.profile.age} anos` : ''}${unit.label ? ` · ${unit.label}` : ''}`;
   const printSkills = [
     ['Interacao fisica e hardware', 'Mouse, teclado e comandos iniciais.', skillData[0][1]],
     ['Navegacao e autonomia digital', 'Pesquisa, abas e uso do navegador.', skillData[1][1]],
@@ -172,36 +180,54 @@ function renderReport() {
     ['T.I. - Tecnologia da Educacao', 'Trilha avancada para desafios tecnicos e resolucao de problemas.']
   ];
   $('printRouteGrid').innerHTML = routes.map(([name, detail]) => `<div class="print-route-card ${rec.name === name ? 'selected' : ''}"><span class="print-check ${rec.name === name ? 'checked' : ''}" aria-hidden="true"></span><div><strong>${name}</strong><small>${detail}</small></div></div>`).join('');
+  technicalReport.printSkills = printSkills;
   $('printNarrative').textContent = rec.narrative; $('printScore').textContent = `${score}/100`; $('printSupport').textContent = supportCount ? `${supportCount} registro${supportCount === 1 ? '' : 's'} de apoio` : 'sem registro'; $('printCourse').textContent = rec.name;
+  $('deliveryNoticeText').textContent = unit.email ? `A equipe da ${unit.label} recebera automaticamente um relatorio tecnico completo para acompanhar os proximos passos.` : 'Seu resultado foi registrado para acompanhamento da equipe.';
   $('stepLabel').textContent = 'Seu relatorio'; showView('reportView'); save(); window.scrollTo(0,0);
+  setTimeout(() => sendTechnicalReportToUnit(), 0);
+}
+
+function reportSignature() { return technicalReport ? `${technicalReport.name}|${technicalReport.age}|${technicalReport.unit}|${technicalReport.score}|${technicalReport.rec.name}` : ''; }
+function makeTechnicalPdf() {
+  const jsPDF = window.jspdf?.jsPDF;
+  if (!jsPDF || !technicalReport) throw new Error('pdf_unavailable');
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const report = technicalReport, width = 210, margin = 14;
+  let y = 0;
+  const section = (number, title) => { y += 7; doc.setTextColor(21, 86, 232); doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text(`${number}.`, margin, y); doc.setTextColor(27, 38, 57); doc.text(title, margin + 8, y); y += 4; };
+  const text = (value, x, maxWidth, size = 9, color = [80, 98, 122]) => { doc.setFont('helvetica', 'normal'); doc.setFontSize(size); doc.setTextColor(...color); const lines = doc.splitTextToSize(value, maxWidth); doc.text(lines, x, y); y += lines.length * (size * .43); };
+  doc.setFillColor(7, 17, 31); doc.rect(0, 0, width, 27, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text('ALL NET EDUCACAO', margin, 12); doc.setFontSize(12); doc.text('AULA ZERO: DIAGNOSTICO E DIRECIONAMENTO', margin, 19); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(184, 204, 236); doc.text('RELATORIO TECNICO PARA COORDENACAO', width - margin, 19, { align: 'right' }); y = 34;
+  section('1', 'IDENTIFICACAO DO ALUNO');
+  doc.setDrawColor(216, 224, 235); doc.rect(margin, y, 182, 20); doc.setFillColor(240, 244, 249); doc.rect(margin, y, 42, 10, 'F'); doc.rect(126, y, 28, 10, 'F'); doc.rect(margin, y + 10, 42, 10, 'F'); doc.setTextColor(74, 91, 114); doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text('ALUNO', margin + 3, y + 6); doc.text('IDADE', 129, y + 6); doc.text('UNIDADE', margin + 3, y + 16); doc.setTextColor(27, 38, 57); doc.setFontSize(9); doc.text(report.name, margin + 45, y + 6); doc.text(`${report.age} anos`, 157, y + 6); doc.text(report.unit, margin + 45, y + 16); y += 25;
+  section('2', 'MATRIZ DE COMPETENCIAS');
+  const columns = [margin, 136, 154, 172]; doc.setFillColor(32, 44, 65); doc.rect(margin, y, 182, 9, 'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.text('COMPETENCIA OBSERVADA', margin + 3, y + 5.5); doc.text('NAO', 142, y + 4); doc.text('SUPORTE', 157, y + 5.5); doc.text('AUTONOMO', 175, y + 5.5); y += 9;
+  report.printSkills.forEach(([name, detail, value], index) => { const level = value === null ? -1 : value === 0 ? 0 : value < 70 ? 1 : 2; if (index % 2) { doc.setFillColor(246,248,251); doc.rect(margin, y, 182, 12, 'F'); } doc.setDrawColor(216,224,235); doc.rect(margin, y, 182, 12); doc.setTextColor(32,43,61); doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text(name, margin + 3, y + 4.5); doc.setFont('helvetica','normal'); doc.setTextColor(101,119,145); doc.setFontSize(6.8); doc.text(doc.splitTextToSize(detail, 112), margin + 3, y + 8); [0,1,2].forEach((column, i) => { doc.setDrawColor(174,190,210); doc.rect(columns[i + 1], y + 4, 4, 4); if (level === column) { doc.setFillColor(21,86,232); doc.rect(columns[i + 1] + .6, y + 4.6, 2.8, 2.8, 'F'); } }); y += 12; });
+  section('3', 'PARECER E DIRECIONAMENTO');
+  text(report.rec.narrative, margin, 182, 8.3); y += 2; doc.setFillColor(243,247,255); doc.setDrawColor(46,117,255); doc.roundedRect(margin, y, 182, 15, 2, 2, 'FD'); doc.setTextColor(21,86,232); doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('TURMA SUGERIDA', margin + 5, y + 5); doc.setTextColor(27,38,57); doc.setFontSize(11); doc.text(report.rec.name, margin + 5, y + 11); y += 21;
+  section('4', 'CONSIDERACOES DA EQUIPE');
+  doc.setTextColor(80,98,122); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.text(`Pontuacao geral: ${report.score}/100   |   Apoio pratico: ${report.supportCount ? `${report.supportCount} registro(s)` : 'sem registro'}`, margin, y); y += 4; doc.setDrawColor(216,224,235); doc.rect(margin, y, 182, 18); for (let line = 5; line < 18; line += 5) doc.line(margin + 3, y + line, 193, y + line); y += 24;
+  section('5', 'DEFINICAO FINAL');
+  doc.setDrawColor(216,224,235); doc.rect(margin, y, 182, 10); doc.setFillColor(240,244,249); doc.rect(margin, y, 42, 10, 'F'); doc.setTextColor(74,91,114); doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('TURMA', margin + 3, y + 6); doc.setTextColor(27,38,57); doc.setFontSize(9); doc.text(report.rec.name, margin + 46, y + 6); y += 24; doc.setDrawColor(64,81,105); doc.line(margin, y, 88, y); doc.line(122, y, 196, y); doc.setTextColor(68,84,106); doc.setFontSize(8); doc.text('Assinatura do Professor / Avaliador', 51, y + 5, { align: 'center' }); doc.text('Assinatura do Aluno ou Responsavel', 159, y + 5, { align: 'center' }); doc.setTextColor(146,161,182); doc.setFontSize(7); doc.text('Ficha de Direcionamento Tecnico - Aula Zero', 196, 289, { align: 'right' });
+  return doc.output('datauristring');
+}
+
+async function sendTechnicalReportToUnit() {
+  if (!technicalReport?.recipientEmail) return;
+  const signature = reportSignature();
+  if (state.deliverySignature === signature || Date.now() - lastEmailSentAt < 30000) return;
+  try {
+    const reportText = `RELATORIO TECNICO - ALL NET EDUCACAO\n\nAluno(a): ${technicalReport.name}\nUnidade: ${technicalReport.unit}\nResultado gerado em: ${technicalReport.date}\n\nTURMA SUGERIDA\n${technicalReport.rec.name}\nPontuacao geral: ${technicalReport.score}/100\n\nPARECER\n${technicalReport.rec.narrative}\n\nCOMPETENCIAS\n${technicalReport.printSkills.map(([name, , value]) => `${name}: ${value === null ? 'Nao avaliado' : `${value}%`}`).join('\n')}\n\nO relatorio tecnico completo foi enviado para acompanhamento da unidade.`;
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ service_id: emailDelivery.serviceId, template_id: emailDelivery.templateId, user_id: emailDelivery.publicKey, template_params: { to_email: technicalReport.recipientEmail, student_name: technicalReport.name, name: 'All Net Educacao', time: technicalReport.date, message: reportText, email: 'analicepessoa@gmail.com' } }) });
+    if (!response.ok) throw new Error('email_delivery_failed');
+    state.deliverySignature = signature; lastEmailSentAt = Date.now(); save();
+  } catch (_) { $('deliveryNoticeText').textContent = 'Seu resultado foi registrado. A equipe da unidade podera solicitar o relatorio tecnico se necessario.'; }
 }
 
 $('startButton').addEventListener('click', () => { editingProfile = false; $('profileSubmitButton').innerHTML = 'Ir para o teste <span aria-hidden="true">→</span>'; showView('profileView'); $('stepLabel').textContent = 'Seu perfil'; setTimeout(() => $('studentName').focus(), 100); });
 $('profileForm').addEventListener('submit', (event) => { event.preventDefault(); state.profile = { name: $('studentName').value, age: $('studentAge').value, unit: $('studentUnit').value }; save(); if (editingProfile) { editingProfile = false; renderReport(); return; } state.stageIndex = 0; state.questionIndex = 0; showView('quizView'); renderQuestion(); window.scrollTo(0,0); });
 $('nextButton').addEventListener('click', () => { if (state.questionIndex < stageQuestions().length - 1) { state.questionIndex++; save(); renderQuestion(); } else completeStage(); });
 $('continueStageButton').addEventListener('click', () => { state.stageIndex++; state.questionIndex = 0; save(); showView('quizView'); renderQuestion(); window.scrollTo(0,0); });
-$('printButton').addEventListener('click', () => window.print());
 $('editProfileButton').addEventListener('click', () => { editingProfile = true; $('profileSubmitButton').textContent = 'Salvar dados e voltar ao relatorio'; $('studentName').value = state.profile.name || ''; $('studentAge').value = state.profile.age || ''; $('studentUnit').value = state.profile.unit || ''; showView('profileView'); $('stepLabel').textContent = 'Corrigir dados'; });
-$('emailForm').addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const email = $('emailTarget').value.trim(), name = state.profile.name || 'Aluno(a)', recommendation = $('recommendationName').textContent, score = $('totalScore').textContent, narrative = $('reportNarrative').textContent, journey = $('reportJourneyDetail').textContent, support = $('reportSupport').textContent;
-  if (Date.now() - lastEmailSentAt < 30000) { $('emailFeedback').textContent = 'Este relatorio ja foi enviado. Aguarde alguns segundos antes de enviar outra copia.'; return; }
-  const skillSummary = [...document.querySelectorAll('.skill-row')].map(row => `${row.querySelector('span').textContent}: ${row.querySelector('b').textContent}`).join('\n');
-  const steps = [...document.querySelectorAll('#nextSteps li')].map((step, index) => `${index + 1}. ${step.textContent}`).join('\n');
-  const reportText = `RELATORIO DE NIVEL - ALL NET EDUCACAO\n\nAluno(a): ${name}\nResultado gerado em: ${$('reportDate').textContent}\n\nRECOMENDACAO INICIAL\n${recommendation}\nPontuacao geral: ${score}/100\nPercurso: ${journey}\nApoio pratico: ${support}\n\nO QUE OBSERVAMOS\n${narrative}\n\nCOMPETENCIAS AVALIADAS\n${skillSummary}\n\nPROXIMOS PASSOS\n${steps}\n\nO relatorio visual completo tambem esta disponivel para impressao no teste da All Net Educacao.`;
-  const button = $('sendEmailButton');
-  button.disabled = true; button.textContent = 'Enviando...'; $('emailFeedback').textContent = 'Enviando o relatorio...';
-  try {
-    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ service_id: emailDelivery.serviceId, template_id: emailDelivery.templateId, user_id: emailDelivery.publicKey, template_params: { to_email: email, student_name: name, name: 'All Net Educacao', time: $('reportDate').textContent, message: reportText, email: 'analicepessoa@gmail.com' } }) });
-    if (!response.ok) throw new Error('email_delivery_failed');
-    lastEmailSentAt = Date.now();
-    $('emailFeedback').textContent = `Relatorio enviado com sucesso para ${email}.`;
-  } catch (_) {
-    $('emailFeedback').textContent = 'Nao foi possivel enviar agora. Confira o e-mail e tente novamente.';
-  } finally {
-    button.disabled = false; button.textContent = 'Enviar relatorio agora';
-  }
-});
 
 function registerWebMcp() { const context = document.modelContext; if (!context?.registerTool) return; const controller = new AbortController(); try { Promise.resolve(context.registerTool({ name:'reiniciar_teste_de_nivel', title:'Reiniciar teste de nivel', description:'Apaga as respostas locais e abre o inicio do teste para um novo aluno.', inputSchema:{type:'object',properties:{},additionalProperties:false}, annotations:{readOnlyHint:false,untrustedContentHint:false}, execute(){ reset(); return {status:'reiniciado'}; } },{signal:controller.signal})).catch(()=>{}); } catch (_) {} }
 registerWebMcp();

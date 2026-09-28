@@ -52,7 +52,7 @@
           <p>Essas informacoes aparecerao no seu relatorio.</p>
           <form id="profileForm">
             <label>Nome completo <input id="studentName" name="studentName" autocomplete="name" required placeholder="Digite seu nome" /></label>
-            <div class="input-row"><label>Idade <input id="studentAge" name="studentAge" type="number" min="5" max="120" inputmode="numeric" required placeholder="Ex.: 16" /></label><label>Unidade / cidade <input id="studentUnit" name="studentUnit" placeholder="Ex.: Taubate" /></label></div>
+            <div class="input-row"><label>Idade <input id="studentAge" name="studentAge" type="number" min="5" max="120" inputmode="numeric" required placeholder="Ex.: 16" /></label><label>Unidade <select id="studentUnit" name="studentUnit" required><option value="">Selecione a unidade</option><option value="pinda">All Net Pindamonhangaba</option><option value="taubate">All Net Taubate</option></select></label></div>
             <button class="primary-button" id="profileSubmitButton" type="submit">Ir para o teste <span aria-hidden="true">→</span></button>
           </form>
         </div>
@@ -69,16 +69,16 @@
       </section>
 
       <section class="view" id="reportView" aria-labelledby="reportTitle">
-        <div class="report-toolbar no-print"><button class="secondary-button" id="editProfileButton" type="button">Editar dados</button><button class="secondary-button" id="printButton" type="button">🖨 Imprimir relatorio</button></div>
+        <div class="report-toolbar no-print"><button class="secondary-button" id="editProfileButton" type="button">Editar dados</button></div>
         <article class="report-paper" id="reportPaper">
-          <header class="report-head"><div><p class="eyebrow">RELATORIO DE DIRECIONAMENTO · AULA ZERO</p><h2 id="reportTitle">Seu ponto de partida, <span id="reportName">aluno(a)</span>.</h2><p id="reportDate"></p></div><span class="report-seal" id="reportLevel">N1</span></header>
-          <section class="report-highlight"><div><p>RECOMENDACAO INICIAL</p><h3 id="recommendationName">Inclusao Digital</h3><span id="recommendationSubtitle">Uma base tranquila para ganhar confianca.</span></div><div class="score-orb"><strong id="totalScore">0</strong><small>pontos<br />de 100</small></div></section>
-          <section class="report-summary-grid" aria-label="Resumo da avaliacao"><div class="report-summary-card"><span>PERFIL AVALIADO</span><strong id="reportProfile">—</strong><small id="reportProfileDetail">—</small></div><div class="report-summary-card"><span>ETAPAS CONCLUIDAS</span><strong id="reportJourney">—</strong><small id="reportJourneyDetail">—</small></div><div class="report-summary-card report-support-card"><span>APOIO PRATICO</span><strong id="reportSupport">—</strong><small id="reportSupportDetail">—</small></div></section>
-          <section class="report-body"><div><h3>O que observamos</h3><p id="reportNarrative"></p><div class="report-section-label">LEITURA POR COMPETENCIA</div><div class="skill-list" id="skillList"></div><div class="stage-breakdown" id="stageBreakdown"></div></div><aside class="next-steps"><h3>Proximos passos</h3><ol id="nextSteps"></ol><p class="small-note">Esta recomendacao e um ponto de partida. A equipe pode ajusta-la apos uma conversa com voce.</p></aside></section>
-          <section class="email-panel no-print"><div><span class="mail-icon">✉</span><div><h3>Enviar o resumo completo por e-mail</h3><p>Informe o e-mail da secretaria ou do responsavel. O relatorio sera enviado automaticamente, sem abrir outro aplicativo.</p></div></div><form id="emailForm"><label class="sr-only" for="emailTarget">E-mail para envio</label><input id="emailTarget" type="email" required placeholder="email@exemplo.com" /><button class="primary-button" id="sendEmailButton" type="submit">Enviar relatorio agora</button></form><p class="email-feedback" id="emailFeedback" aria-live="polite"></p></section>
+          <header class="report-head"><div><p class="eyebrow">RESULTADO DA AVALIACAO · AULA ZERO</p><h2 id="reportTitle">Muito bem, <span id="reportName">aluno(a)</span>.</h2><p id="reportDate"></p></div><span class="report-seal" id="reportLevel">OK</span></header>
+          <section class="report-highlight"><div><p>PONTUACAO GERAL</p><h3 id="recommendationName">Seu resultado foi registrado</h3><span id="recommendationSubtitle">A equipe vai conversar com voce sobre os proximos passos.</span></div><div class="score-orb"><strong id="totalScore">0</strong><small>pontos<br />de 100</small></div></section>
+          <section class="report-summary-grid" aria-label="Resumo da avaliacao"><div class="report-summary-card"><span>PERFIL AVALIADO</span><strong id="reportProfile">—</strong><small id="reportProfileDetail">—</small></div><div class="report-summary-card"><span>ETAPAS CONCLUIDAS</span><strong id="reportJourney">—</strong><small id="reportJourneyDetail">—</small></div><div class="report-summary-card report-support-card"><span>EXPERIENCIA PRATICA</span><strong id="reportSupport">—</strong><small id="reportSupportDetail">—</small></div></section>
+          <section class="report-body"><div><h3>O que observamos</h3><p id="reportNarrative"></p><div class="report-section-label">LEITURA POR COMPETENCIA</div><div class="skill-list" id="skillList"></div><div class="stage-breakdown" id="stageBreakdown"></div></div><aside class="next-steps"><h3>Proximos passos</h3><ol id="nextSteps"></ol><p class="small-note">A equipe vai usar este resultado para conversar sobre a melhor experiencia de aprendizagem para voce.</p></aside></section>
           <footer class="report-footer"><span>All Net Educacao · avaliacao inicial de informatica</span><span id="reportStudentDetails"></span></footer>
         </article>
-        <article class="print-direction-sheet" aria-label="Ficha de direcionamento para impressao">
+        <section class="delivery-notice no-print" id="deliveryNotice"><span>✓</span><div><h3>Resultado registrado</h3><p id="deliveryNoticeText">A equipe da sua unidade recebera um relatorio tecnico para acompanhar os proximos passos.</p></div></section>
+        <article class="print-direction-sheet" id="printDirectionSheet" aria-label="Ficha de direcionamento para impressao">
           <header class="print-sheet-head"><div><strong>ALL NET EDUCACAO</strong><span>AULA ZERO: DIAGNOSTICO E DIRECIONAMENTO</span></div><small>SISTEMA DE AVALIACAO DE PERFIL TECNOLOGICO</small></header>
           <section class="print-section print-identification"><h3><b>1.</b> IDENTIFICACAO DO ALUNO</h3><div class="print-identification-grid"><p><strong>Aluno:</strong><span id="printStudent">-</span></p><p><strong>Idade:</strong><span id="printAge">-</span></p><p class="print-wide"><strong>Unidade / cidade:</strong><span id="printUnit">-</span></p><p class="print-wide"><strong>Avaliacao realizada em:</strong><span id="printDate">-</span></p></div></section>
           <section class="print-section"><h3><b>2.</b> MATRIZ DE AVALIACAO DE COMPETENCIAS</h3><div class="print-matrix"><div class="print-matrix-head"><span>INDICADORES / COMPETENCIAS OBSERVADAS</span><span>NAO EXECUTA</span><span>COM SUPORTE</span><span>AUTONOMO</span></div><div id="printSkillMatrix"></div></div></section>
@@ -89,6 +89,7 @@
         </article>
       </section>
     </main>
-    <script src="app.js?v=email-direto-1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="app.js?v=relatorio-tecnico-1"></script>
   </body>
 </html>
