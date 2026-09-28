@@ -38,7 +38,7 @@ const keyboardRows = [
 const state = { profile: {}, stageIndex: 0, questionIndex: 0, answers: [], stageScores: [], taskSteps: {}, taskAttempts: {}, lastStageScore: 0 };
 const $ = (id) => document.getElementById(id);
 const views = ['welcomeView','profileView','quizView','stageResultView','reportView'];
-const emailDelivery = Object.freeze({ serviceId: 'service_9p1t2ug', templateId: 'template_52uvcqn', publicKey: '8kxy0FP5TeTYlRtGm' });
+const reportDelivery = Object.freeze({ appsScriptUrl: 'https://script.google.com/macros/s/AKfycbxbFOuDFH4wCUiP3-TXh9DYg6bcyjUbHBoD72NDlm1b1I_fCRL7l8HfIzC3dg9c85c/exec' });
 let editingProfile = false;
 let lastEmailSentAt = 0;
 let technicalReport = null;
@@ -216,9 +216,17 @@ async function sendTechnicalReportToUnit() {
   const signature = reportSignature();
   if (state.deliverySignature === signature || Date.now() - lastEmailSentAt < 30000) return;
   try {
-    const reportText = `RELATORIO TECNICO - ALL NET EDUCACAO\n\nAluno(a): ${technicalReport.name}\nUnidade: ${technicalReport.unit}\nResultado gerado em: ${technicalReport.date}\n\nTURMA SUGERIDA\n${technicalReport.rec.name}\nPontuacao geral: ${technicalReport.score}/100\n\nPARECER\n${technicalReport.rec.narrative}\n\nCOMPETENCIAS\n${technicalReport.printSkills.map(([name, , value]) => `${name}: ${value === null ? 'Nao avaliado' : `${value}%`}`).join('\n')}\n\nO relatorio tecnico completo foi enviado para acompanhamento da unidade.`;
-    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ service_id: emailDelivery.serviceId, template_id: emailDelivery.templateId, user_id: emailDelivery.publicKey, template_params: { to_email: technicalReport.recipientEmail, student_name: technicalReport.name, name: 'All Net Educacao', time: technicalReport.date, message: reportText, email: 'analicepessoa@gmail.com' } }) });
-    if (!response.ok) throw new Error('email_delivery_failed');
+    const reportPayload = {
+      name: technicalReport.name,
+      age: Number(technicalReport.age),
+      unit: state.profile.unit,
+      score: technicalReport.score,
+      date: technicalReport.date,
+      recommendation: technicalReport.rec.name,
+      skills: technicalReport.printSkills.map(([name, , value]) => ({ name, value: value === null ? 'Nao avaliado' : `${value}%` })),
+      pdfDataUri: makeTechnicalPdf()
+    };
+    await fetch(reportDelivery.appsScriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(reportPayload) });
     state.deliverySignature = signature; lastEmailSentAt = Date.now(); save();
   } catch (_) { $('deliveryNoticeText').textContent = 'Seu resultado foi registrado. A equipe da unidade podera solicitar o relatorio tecnico se necessario.'; }
 }
