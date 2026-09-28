@@ -12,12 +12,12 @@ const stages = [
     { area: 'Comunicacao', prompt: 'Para enviar por e-mail um curriculo que esta salvo no computador, qual e o procedimento mais indicado?', options: ['Usar o botao de anexo e selecionar o arquivo', 'Escrever o nome do arquivo no campo Assunto', 'Copiar o arquivo para a pasta Enviados antes de escrever a mensagem'], answer: 0 },
     { area: 'Seguranca', prompt: 'Uma mensagem inesperada pede para voce confirmar sua senha por um link. Qual e a melhor atitude?', options: ['Acessar o site oficial por conta propria e conferir a solicitacao', 'Responder a mensagem pedindo que enviem um segundo link', 'Abrir o link em outra aba para verificar se ele parece conhecido'], answer: 0 }
   ]},
-  { id: 'productive', title: 'Criar e resolver', icon: '🚀', threshold: 4, questions: [
+  { id: 'productive', title: 'Criar, resolver e usar IA', icon: '🚀', threshold: 4, questions: [
     { area: 'Arquivos', prompt: 'Qual nome permite identificar melhor um trabalho escolar meses depois?', options: ['Trabalho_Ciencias_Ana_Setembro', 'Trabalho-final-revisado', 'Documento1'], answer: 0 },
-    { area: 'Organizacao', prompt: 'Voce quer guardar as fotos de uma viagem de modo que possa encontra-las depois. Qual e a melhor escolha?', options: ['Criar uma pasta com nome e data claros', 'Deixar todas na area de trabalho e ordenar por icone', 'Marcar cada foto como favorita no navegador'], answer: 0 },
+    { area: 'Inteligencia artificial', prompt: 'Uma ferramenta de IA criou um resumo para seu trabalho. Qual atitude e mais adequada antes de usar esse texto?', options: ['Revisar, conferir dados importantes e adaptar o texto ao seu objetivo', 'Usar exatamente como saiu, pois a IA ja verificou as informacoes', 'Trocar apenas a fonte e entregar o texto sem reler'], answer: 0 },
     { area: 'Produtividade', prompt: 'Em uma planilha para controlar gastos, por que usar linhas e colunas?', options: ['Para organizar categorias, datas e valores de forma comparavel', 'Para aplicar uma fonte diferente em cada frase', 'Para transformar a planilha em uma apresentacao automaticamente'], answer: 0 },
     { area: 'Resolucao', prompt: 'Um site que normalmente funciona nao abre. Qual e uma boa primeira verificacao?', options: ['Conferir a conexao e atualizar a pagina', 'Limpar todos os dados do navegador imediatamente', 'Reiniciar o computador antes de testar qualquer outra coisa'], answer: 0 },
-    { area: 'Criacao', prompt: 'Voce vai montar uma apresentacao para explicar uma ideia. Qual pratica ajuda mais o publico a entender?', options: ['Organizar as ideias em uma sequencia curta de slides', 'Colocar todo o texto em um unico slide para nao esquecer nada', 'Escolher animacoes complexas antes de definir o conteudo'], answer: 0 }
+    { area: 'Inteligencia artificial', prompt: 'Voce quer pedir ajuda a uma IA para criar um convite de curso. Qual pedido tende a gerar um resultado mais aproveitavel?', options: ['Informar para quem e o convite, o objetivo, a data, o tom e o formato desejado', 'Pedir somente um convite bonito e decidir os detalhes depois', 'Pedir varios textos longos sem explicar quem vai receber o convite'], answer: 0 }
   ]},
   { id: 'ti', title: 'Desafio T.I.', icon: '🧠', threshold: 4, questions: [
     { area: 'Diagnostico tecnico', prompt: 'Alguns computadores parecem conectados ao Wi-Fi, mas nenhum site abre. Qual verificacao ajuda mais antes de alterar configuracoes?', options: ['Testar mais de um site em um equipamento e comparar com outro dispositivo da rede', 'Apagar todas as redes salvas em cada computador', 'Trocar a senha de todas as contas da escola'], answer: 0 },
@@ -134,7 +134,7 @@ function pickRecommendation(score, age, tiApproved) {
   if (tiApproved) return { level:'TI', name:'T.I. - Tecnologia da Educacao', subtitle:'Um caminho para aprofundar desafios tecnicos.', narrative:'Voce demonstrou muita seguranca nas tarefas avaliadas e concluiu o Desafio T.I. A recomendacao inicial e uma conversa com a equipe sobre uma trilha tecnica, com projetos de maior profundidade.', steps:['Conversar sobre interesses como redes, hardware, sistemas ou programacao.','Experimentar desafios praticos de resolucao de problemas.','Definir uma trilha tecnica acompanhada pela equipe.'] };
   if (age <= 13) return { level:'IE', name:'Informatica Educacional', subtitle:'Aprender criando, no ritmo certo para a idade.', narrative:'Pela sua idade e pelo que mostrou no teste, a Informatica Educacional e a melhor porta de entrada. Nela, voce pode ganhar autonomia enquanto cria trabalhos, exercita a logica e explora a tecnologia de forma guiada.', steps:['Praticar mouse, teclado e navegacao com atividades orientadas.','Criar documentos, apresentacoes e projetos divertidos.','Desenvolver autonomia digital e logica passo a passo.'] };
   if (age > 50 && score < 55) return { level:'IS', name:'Informatica Senior', subtitle:'Uma base acolhedora para ganhar confianca.', narrative:'Pela sua idade e pelas respostas desta etapa, voce pode se beneficiar de uma turma com orientacao passo a passo e bastante pratica. A Informatica Senior ajuda a construir seguranca para usar computador, internet, arquivos e comunicacao digital no dia a dia.', steps:['Praticar o uso do mouse e do teclado em atividades guiadas.','Aprender a navegar, pesquisar e se comunicar com seguranca.','Reavaliar sua evolucao apos os primeiros encontros.'] };
-  return { level:'I5', name:'Informatica 5.0', subtitle:'Tecnologia aplicada a ideias e projetos.', narrative:'Voce mostrou autonomia para trabalhar com ferramentas digitais. A sugestao e explorar projetos, produtividade, apresentacoes e recursos atuais que ajudam a transformar ideias em resultados.', steps:['Aprofundar planilhas, documentos e apresentacoes.','Explorar ferramentas atuais para produtividade e criacao.','Desenvolver um projeto pessoal ou empreendedor.'] };
+  return { level:'I5', name:'Informatica 5.0', subtitle:'Tecnologia, inteligencia artificial e projetos.', narrative:'Voce mostrou autonomia para trabalhar com ferramentas digitais. A sugestao e explorar projetos, produtividade, apresentacoes e recursos atuais — incluindo inteligencia artificial usada com criterio e seguranca — para transformar ideias em resultados.', steps:['Aprofundar planilhas, documentos e apresentacoes.','Explorar inteligencia artificial para planejar, criar e revisar com responsabilidade.','Desenvolver um projeto pessoal ou empreendedor.'] };
 }
 
 function renderReport() {
@@ -145,7 +145,8 @@ function renderReport() {
   const score = Math.round((correct / totalQuestions) * 100), rec = pickRecommendation(score, Number(state.profile.age), tiApproved), firstName = state.profile.name?.trim().split(' ')[0] || 'aluno(a)';
   const supportCount = state.answers.flat().filter(answer => typeof answer === 'string' && answer.startsWith('support-')).length;
   const completedStageData = completedStages.map((stage, index) => ({ title: stage.title, correct: state.stageScores[index] ?? 0, total: stage.questions.length }));
-  const skillData = [['Mouse e teclado',areaScore('mouse')],['Navegacao',areaScore('navegacao')],['Arquivos',areaScore('arquivos')],['Comunicacao',areaScore('comunicacao')],['Criar e resolver',areaScore('criacao') || areaScore('resolucao')]];
+  const creativeAndAiScore = [areaScore('criacao'), areaScore('resolucao'), areaScore('inteligencia artificial')].filter(value => value !== null);
+  const skillData = [['Mouse e teclado',areaScore('mouse')],['Navegacao',areaScore('navegacao')],['Arquivos',areaScore('arquivos')],['Comunicacao',areaScore('comunicacao')],['Criar, resolver e usar IA',creativeAndAiScore.length ? Math.round(creativeAndAiScore.reduce((sum, value) => sum + value, 0) / creativeAndAiScore.length) : null]];
   const unit = unitRoutes[state.profile.unit] || { label: state.profile.unit || '—', email: null };
   technicalReport = { rec, score, supportCount, correct, totalQuestions, completedStageData, skillData, name: state.profile.name || 'Aluno(a)', age: state.profile.age || '—', unit: unit.label, recipientEmail: unit.email };
   $('reportName').textContent = firstName; $('reportLevel').textContent = 'OK'; $('recommendationName').textContent = 'Seu resultado foi registrado'; $('recommendationSubtitle').textContent = 'A equipe vai conversar com voce sobre os proximos passos.'; $('totalScore').textContent = score; $('reportNarrative').textContent = 'Voce concluiu a avaliacao inicial. Esta pontuacao ajuda a equipe a entender quais habilidades voce ja praticou e quais experiencias podem apoiar seu aprendizado.';
@@ -166,7 +167,7 @@ function renderReport() {
     ['Navegacao e autonomia digital', 'Pesquisa, abas e uso do navegador.', skillData[1][1]],
     ['Comunicacao e redes', 'Uso de e-mail e comunicacao digital.', skillData[3][1]],
     ['Gestao de arquivos', 'Pastas, downloads e localizacao de arquivos.', skillData[2][1]],
-    ['Logica e resolucao de problemas', 'Criacao, produtividade e primeiras verificacoes.', skillData[4][1]]
+    ['Criar, resolver e usar IA', 'Projetos, produtividade, verificacoes e uso responsavel de IA.', skillData[4][1]]
   ];
   $('printStudent').textContent = state.profile.name || '-'; $('printAge').textContent = state.profile.age ? `${state.profile.age} anos` : '-'; $('printUnit').textContent = state.profile.unit || '-'; $('printDate').textContent = today;
   $('printSkillMatrix').innerHTML = printSkills.map(([name, detail, value]) => {
@@ -176,7 +177,7 @@ function renderReport() {
   const routes = [
     ['Informatica Senior', 'Para pessoas com mais de 50 anos que precisam de uma base calma e guiada.'],
     ['Informatica Educacional', 'Para criancas e adolescentes de ate 13 anos aprenderem criando.'],
-    ['Informatica 5.0', 'Projetos, produtividade e tecnologia aplicada ao cotidiano.'],
+    ['Informatica 5.0', 'Projetos, produtividade, inteligencia artificial e tecnologia aplicada ao cotidiano.'],
     ['T.I. - Tecnologia da Educacao', 'Trilha avancada para desafios tecnicos e resolucao de problemas.']
   ];
   $('printRouteGrid').innerHTML = routes.map(([name, detail]) => `<div class="print-route-card ${rec.name === name ? 'selected' : ''}"><span class="print-check ${rec.name === name ? 'checked' : ''}" aria-hidden="true"></span><div><strong>${name}</strong><small>${detail}</small></div></div>`).join('');
