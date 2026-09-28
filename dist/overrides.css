@@ -35,6 +35,8 @@
 .virtual-key { flex: 1 1 0; min-width: 0; height: 42px; border: 0; border-radius: 7px; background: #fff; box-shadow: 0 4px 0 #b9c8dd; color: #24466f; cursor: pointer; font: 700 .82rem "DM Mono", monospace; transition: transform .12s, box-shadow .12s, background .12s; }
 .virtual-key:hover, .virtual-key.pressed { transform: translateY(3px); box-shadow: 0 1px 0 #b9c8dd; background: #ffdc9d; }
 .virtual-key.wide { flex: 1.7 1 0; font: 700 .72rem "DM Sans", sans-serif; }
+.virtual-key.has-shift-symbol { display: grid; grid-template-rows: 1fr 1fr; align-items: center; justify-items: center; padding: 3px 0; line-height: 1; }
+.virtual-key-top { justify-self: start; margin-left: 16%; color: #1556e8; font-size: .72rem; }
 @media (max-width: 640px) { .mouse-simulator { transform: scale(.9); margin: -8px 0; } .interaction-stage { padding-inline: 8px; } .virtual-keyboard { padding: 8px; gap: 5px; } .keyboard-row { gap: 4px; } .virtual-key { height: 37px; font-size: .69rem; } .virtual-key.wide { font-size: .61rem; } .keyboard-help small { font-size: .68rem; } }
 
 /* Identidade visual All Net Educação */
