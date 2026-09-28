@@ -65,6 +65,7 @@ body { background: radial-gradient(circle at 86% 4%, rgba(21,86,232,.13) 0, tran
 .report-summary-card > small { display: block; color: #66768b; font-size: .76rem; line-height: 1.35; }
 .report-support-card { border-color: #b9e4ea; background: linear-gradient(135deg, #f5feff, #eefaff); }
 .report-support-card > strong { color: #0a7580; }
+.email-panel .primary-button:disabled { cursor: wait; opacity: .68; transform: none; box-shadow: none; }
 .report-section-label { margin: 28px 0 12px; color: #1556e8; }
 .stage-breakdown { margin-top: 24px; padding-top: 1px; border-top: 1px solid #e2e9f2; }
 .stage-breakdown .report-section-label { margin-top: 18px; }

@@ -38,7 +38,9 @@ const keyboardRows = [
 const state = { profile: {}, stageIndex: 0, questionIndex: 0, answers: [], stageScores: [], taskSteps: {}, taskAttempts: {}, lastStageScore: 0 };
 const $ = (id) => document.getElementById(id);
 const views = ['welcomeView','profileView','quizView','stageResultView','reportView'];
+const emailDelivery = Object.freeze({ serviceId: 'service_9p1t2ug', templateId: 'template_52uvcqn', publicKey: '8kxy0FP5TeTYlRtGm' });
 let editingProfile = false;
+let lastEmailSentAt = 0;
 
 function showView(id) { views.forEach(v => $(v).classList.toggle('active', v === id)); }
 function save() { localStorage.setItem('rotaDigitalAssessment', JSON.stringify(state)); }
@@ -160,7 +162,26 @@ $('nextButton').addEventListener('click', () => { if (state.questionIndex < stag
 $('continueStageButton').addEventListener('click', () => { state.stageIndex++; state.questionIndex = 0; save(); showView('quizView'); renderQuestion(); window.scrollTo(0,0); });
 $('printButton').addEventListener('click', () => window.print());
 $('editProfileButton').addEventListener('click', () => { editingProfile = true; $('profileSubmitButton').textContent = 'Salvar dados e voltar ao relatorio'; $('studentName').value = state.profile.name || ''; $('studentAge').value = state.profile.age || ''; $('studentUnit').value = state.profile.unit || ''; showView('profileView'); $('stepLabel').textContent = 'Corrigir dados'; });
-$('emailForm').addEventListener('submit', (event) => { event.preventDefault(); const email = $('emailTarget').value, name = state.profile.name || 'Aluno(a)', recommendation = $('recommendationName').textContent, score = $('totalScore').textContent, narrative = $('reportNarrative').textContent, journey = $('reportJourneyDetail').textContent, support = $('reportSupport').textContent, skillSummary = [...document.querySelectorAll('.skill-row')].map(row => `${row.querySelector('span').textContent}: ${row.querySelector('b').textContent}`).join('\n'), steps = [...document.querySelectorAll('#nextSteps li')].map((step, index) => `${index + 1}. ${step.textContent}`).join('\n'); const subject = encodeURIComponent(`Relatorio de nivel - ${name}`); const body = encodeURIComponent(`Ola!\n\nSegue o resumo completo do teste de nivel de informatica de ${name}.\n\nRECOMENDACAO INICIAL\n${recommendation}\nPontuacao geral: ${score}/100\nPercurso: ${journey}\nApoio pratico: ${support}\n\nO QUE OBSERVAMOS\n${narrative}\n\nCOMPETENCIAS AVALIADAS\n${skillSummary}\n\nPROXIMOS PASSOS\n${steps}\n\nO relatorio visual completo esta pronto para impressao no teste da All Net Educacao.`); window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; $('emailFeedback').textContent = 'Seu aplicativo de e-mail deve abrir com o resumo completo preenchido.'; });
+$('emailForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const email = $('emailTarget').value.trim(), name = state.profile.name || 'Aluno(a)', recommendation = $('recommendationName').textContent, score = $('totalScore').textContent, narrative = $('reportNarrative').textContent, journey = $('reportJourneyDetail').textContent, support = $('reportSupport').textContent;
+  if (Date.now() - lastEmailSentAt < 30000) { $('emailFeedback').textContent = 'Este relatorio ja foi enviado. Aguarde alguns segundos antes de enviar outra copia.'; return; }
+  const skillSummary = [...document.querySelectorAll('.skill-row')].map(row => `${row.querySelector('span').textContent}: ${row.querySelector('b').textContent}`).join('\n');
+  const steps = [...document.querySelectorAll('#nextSteps li')].map((step, index) => `${index + 1}. ${step.textContent}`).join('\n');
+  const reportText = `RELATORIO DE NIVEL - ALL NET EDUCACAO\n\nAluno(a): ${name}\nResultado gerado em: ${$('reportDate').textContent}\n\nRECOMENDACAO INICIAL\n${recommendation}\nPontuacao geral: ${score}/100\nPercurso: ${journey}\nApoio pratico: ${support}\n\nO QUE OBSERVAMOS\n${narrative}\n\nCOMPETENCIAS AVALIADAS\n${skillSummary}\n\nPROXIMOS PASSOS\n${steps}\n\nO relatorio visual completo tambem esta disponivel para impressao no teste da All Net Educacao.`;
+  const button = $('sendEmailButton');
+  button.disabled = true; button.textContent = 'Enviando...'; $('emailFeedback').textContent = 'Enviando o relatorio...';
+  try {
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ service_id: emailDelivery.serviceId, template_id: emailDelivery.templateId, user_id: emailDelivery.publicKey, template_params: { to_email: email, student_name: name, name: 'All Net Educacao', time: $('reportDate').textContent, message: reportText, email: 'analicepessoa@gmail.com' } }) });
+    if (!response.ok) throw new Error('email_delivery_failed');
+    lastEmailSentAt = Date.now();
+    $('emailFeedback').textContent = `Relatorio enviado com sucesso para ${email}.`;
+  } catch (_) {
+    $('emailFeedback').textContent = 'Nao foi possivel enviar agora. Confira o e-mail e tente novamente.';
+  } finally {
+    button.disabled = false; button.textContent = 'Enviar relatorio agora';
+  }
+});
 
 function registerWebMcp() { const context = document.modelContext; if (!context?.registerTool) return; const controller = new AbortController(); try { Promise.resolve(context.registerTool({ name:'reiniciar_teste_de_nivel', title:'Reiniciar teste de nivel', description:'Apaga as respostas locais e abre o inicio do teste para um novo aluno.', inputSchema:{type:'object',properties:{},additionalProperties:false}, annotations:{readOnlyHint:false,untrustedContentHint:false}, execute(){ reset(); return {status:'reiniciado'}; } },{signal:controller.signal})).catch(()=>{}); } catch (_) {} }
 registerWebMcp();
