@@ -130,6 +130,36 @@ function areaScore(keyword) {
   return total ? Math.round(correct / total * 100) : null;
 }
 
+function preparationMilestone() {
+  const baseIndex = stages.findIndex(stage => stage.id === 'base');
+  const autonomyIndex = stages.findIndex(stage => stage.id === 'autonomy');
+  const baseStage = stages[baseIndex];
+  const baseScore = state.stageScores[baseIndex] ?? 0;
+  const navigationQuestions = (stages[autonomyIndex]?.questions || []).map((question, index) => ({ question, index })).filter(({ question }) => question.area.toLowerCase().includes('navegacao'));
+  const navigationCorrect = navigationQuestions.filter(({ question, index }) => state.answers[autonomyIndex]?.[index] === question.answer).length;
+  const navigationTotal = navigationQuestions.length;
+  const markers = { baseScore, baseTotal: baseStage?.questions.length || 0, navigationCorrect, navigationTotal };
+
+  if (baseScore < baseStage.threshold) return {
+    code: 'essential-prep',
+    status: 'PREPARATORIO RECOMENDADO',
+    detail: 'Ainda nao demonstrou os fundamentos de mouse e teclado. Recomendar algumas aulas preparatorias de clique, duplo clique e digitacao antes da turma indicada.',
+    markers
+  };
+  if (navigationCorrect < 1) return {
+    code: 'autonomy-prep',
+    status: 'PREPARATORIO RECOMENDADO',
+    detail: 'Ja realiza parte do basico, mas precisa de algumas aulas preparatorias de navegacao e autonomia digital antes da turma indicada.',
+    markers
+  };
+  return {
+    code: 'ready-for-class',
+    status: 'PRONTO PARA A TURMA',
+    detail: 'Nao necessita preparatorio: demonstrou dominio funcional de mouse, teclado e pelo menos uma habilidade de navegacao.',
+    markers
+  };
+}
+
 function pickRecommendation(score, age, tiApproved) {
   if (tiApproved) return { level:'TI', name:'T.I. - Tecnologia da Educacao', subtitle:'Um caminho para aprofundar desafios tecnicos.', narrative:'Voce demonstrou muita seguranca nas tarefas avaliadas e concluiu o Desafio T.I. A recomendacao inicial e uma conversa com a equipe sobre uma trilha tecnica, com projetos de maior profundidade.', steps:['Conversar sobre interesses como redes, hardware, sistemas ou programacao.','Experimentar desafios praticos de resolucao de problemas.','Definir uma trilha tecnica acompanhada pela equipe.'] };
   if (age <= 13) return { level:'IE', name:'Informatica Educacional', subtitle:'Aprender criando, no ritmo certo para a idade.', narrative:'Pela sua idade e pelo que mostrou no teste, a Informatica Educacional e a melhor porta de entrada. Nela, voce pode ganhar autonomia enquanto cria trabalhos, exercita a logica e explora a tecnologia de forma guiada.', steps:['Praticar mouse, teclado e navegacao com atividades orientadas.','Criar documentos, apresentacoes e projetos divertidos.','Desenvolver autonomia digital e logica passo a passo.'] };
@@ -143,12 +173,13 @@ function renderReport() {
   const correct = completedStages.reduce((sum, stage, s) => sum + stage.questions.reduce((count, question, q) => count + (state.answers[s]?.[q] === question.answer ? 1 : 0), 0), 0);
   const tiStage = stages.findIndex(stage => stage.id === 'ti'), tiApproved = tiStage >= 0 && state.stageScores[tiStage] >= stages[tiStage].threshold;
   const score = Math.round((correct / totalQuestions) * 100), rec = pickRecommendation(score, Number(state.profile.age), tiApproved), firstName = state.profile.name?.trim().split(' ')[0] || 'aluno(a)';
+  const preparation = preparationMilestone();
   const supportCount = state.answers.flat().filter(answer => typeof answer === 'string' && answer.startsWith('support-')).length;
   const completedStageData = completedStages.map((stage, index) => ({ title: stage.title, correct: state.stageScores[index] ?? 0, total: stage.questions.length }));
   const creativeAndAiScore = [areaScore('criacao'), areaScore('resolucao'), areaScore('inteligencia artificial')].filter(value => value !== null);
   const skillData = [['Mouse e teclado',areaScore('mouse')],['Navegacao',areaScore('navegacao')],['Arquivos',areaScore('arquivos')],['Comunicacao',areaScore('comunicacao')],['Criar, resolver e usar IA',creativeAndAiScore.length ? Math.round(creativeAndAiScore.reduce((sum, value) => sum + value, 0) / creativeAndAiScore.length) : null]];
   const unit = unitRoutes[state.profile.unit] || { label: state.profile.unit || '—', email: null };
-  technicalReport = { rec, score, supportCount, correct, totalQuestions, completedStageData, skillData, name: state.profile.name || 'Aluno(a)', age: state.profile.age || '—', unit: unit.label, recipientEmail: unit.email };
+  technicalReport = { rec, preparation, score, supportCount, correct, totalQuestions, completedStageData, skillData, name: state.profile.name || 'Aluno(a)', age: state.profile.age || '—', unit: unit.label, recipientEmail: unit.email };
   $('reportName').textContent = firstName; $('reportLevel').textContent = 'OK'; $('recommendationName').textContent = 'Seu resultado foi registrado'; $('recommendationSubtitle').textContent = 'A equipe vai conversar com voce sobre os proximos passos.'; $('totalScore').textContent = score; $('reportNarrative').textContent = 'Voce concluiu a avaliacao inicial. Esta pontuacao ajuda a equipe a entender quais habilidades voce ja praticou e quais experiencias podem apoiar seu aprendizado.';
   $('skillList').innerHTML = skillData.map(([name, value]) => value === null ? `<div class="skill-row"><span>${name}</span><div class="skill-bar"><i style="width:0%"></i></div><b>A avaliar</b></div>` : `<div class="skill-row"><span>${name}</span><div class="skill-bar"><i style="width:${value}%"></i></div><b>${value}%</b></div>`).join('');
   $('nextSteps').innerHTML = ['Valorizar o que voce ja conseguiu fazer.','Continuar praticando com curiosidade e tranquilidade.','Conversar com a equipe sobre seus interesses em tecnologia.'].map(step => `<li>${step}</li>`).join('');
@@ -188,7 +219,7 @@ function renderReport() {
   setTimeout(() => sendTechnicalReportToUnit(), 0);
 }
 
-function reportSignature() { return technicalReport ? `${technicalReport.name}|${technicalReport.age}|${technicalReport.unit}|${technicalReport.score}|${technicalReport.rec.name}` : ''; }
+function reportSignature() { return technicalReport ? `${technicalReport.name}|${technicalReport.age}|${technicalReport.unit}|${technicalReport.score}|${technicalReport.rec.name}|${technicalReport.preparation.code}` : ''; }
 function makeTechnicalPdf() {
   const jsPDF = window.jspdf?.jsPDF;
   if (!jsPDF || !technicalReport) throw new Error('pdf_unavailable');
@@ -204,9 +235,9 @@ function makeTechnicalPdf() {
   const columns = [margin, 136, 154, 172]; doc.setFillColor(32, 44, 65); doc.rect(margin, y, 182, 9, 'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.text('COMPETENCIA OBSERVADA', margin + 3, y + 5.5); doc.text('NAO', 142, y + 4); doc.text('SUPORTE', 157, y + 5.5); doc.text('AUTONOMO', 175, y + 5.5); y += 9;
   report.printSkills.forEach(([name, detail, value], index) => { const level = value === null ? -1 : value === 0 ? 0 : value < 70 ? 1 : 2; if (index % 2) { doc.setFillColor(246,248,251); doc.rect(margin, y, 182, 12, 'F'); } doc.setDrawColor(216,224,235); doc.rect(margin, y, 182, 12); doc.setTextColor(32,43,61); doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text(name, margin + 3, y + 4.5); doc.setFont('helvetica','normal'); doc.setTextColor(101,119,145); doc.setFontSize(6.8); doc.text(doc.splitTextToSize(detail, 112), margin + 3, y + 8); [0,1,2].forEach((column, i) => { doc.setDrawColor(174,190,210); doc.rect(columns[i + 1], y + 4, 4, 4); if (level === column) { doc.setFillColor(21,86,232); doc.rect(columns[i + 1] + .6, y + 4.6, 2.8, 2.8, 'F'); } }); y += 12; });
   section('3', 'PARECER E DIRECIONAMENTO');
-  text(report.rec.narrative, margin, 182, 8.3); y += 2; doc.setFillColor(243,247,255); doc.setDrawColor(46,117,255); doc.roundedRect(margin, y, 182, 15, 2, 2, 'FD'); doc.setTextColor(21,86,232); doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('TURMA SUGERIDA', margin + 5, y + 5); doc.setTextColor(27,38,57); doc.setFontSize(11); doc.text(report.rec.name, margin + 5, y + 11); y += 21;
+  text(report.rec.narrative, margin, 182, 8.3); y += 2; doc.setFillColor(report.preparation.code === 'ready-for-class' ? 239 : 255, report.preparation.code === 'ready-for-class' ? 250 : 247, 255); doc.setDrawColor(report.preparation.code === 'ready-for-class' ? 45 : 243, report.preparation.code === 'ready-for-class' ? 154 : 154, report.preparation.code === 'ready-for-class' ? 115 : 48); doc.roundedRect(margin, y, 182, 21, 2, 2, 'FD'); doc.setTextColor(report.preparation.code === 'ready-for-class' ? 21 : 170, report.preparation.code === 'ready-for-class' ? 111 : 91, report.preparation.code === 'ready-for-class' ? 76 : 23); doc.setFont('helvetica','bold'); doc.setFontSize(7.2); doc.text('MARCO DE PREPARO', margin + 5, y + 4.5); doc.setFontSize(8.8); doc.text(report.preparation.status, margin + 5, y + 8.8); doc.setFont('helvetica','normal'); doc.setTextColor(80,98,122); doc.setFontSize(6.8); doc.text(doc.splitTextToSize(report.preparation.detail, 105), margin + 5, y + 12.5); doc.setTextColor(21,86,232); doc.setFont('helvetica','bold'); doc.setFontSize(7.2); doc.text('TURMA SUGERIDA', 128, y + 4.5); doc.setTextColor(27,38,57); doc.setFontSize(9.5); doc.text(doc.splitTextToSize(report.rec.name, 58), 128, y + 9.5); y += 27;
   section('4', 'CONSIDERACOES DA EQUIPE');
-  doc.setTextColor(80,98,122); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.text(`Pontuacao geral: ${report.score}/100   |   Apoio pratico: ${report.supportCount ? `${report.supportCount} registro(s)` : 'sem registro'}`, margin, y); y += 4; doc.setDrawColor(216,224,235); doc.rect(margin, y, 182, 18); for (let line = 5; line < 18; line += 5) doc.line(margin + 3, y + line, 193, y + line); y += 24;
+  doc.setTextColor(80,98,122); doc.setFont('helvetica','normal'); doc.setFontSize(7.6); doc.text(`Pontuacao geral: ${report.score}/100   |   Apoio pratico: ${report.supportCount ? `${report.supportCount} registro(s)` : 'sem registro'}   |   Basico: ${report.preparation.markers.baseScore}/${report.preparation.markers.baseTotal}   |   Navegacao: ${report.preparation.markers.navigationCorrect}/${report.preparation.markers.navigationTotal}`, margin, y); y += 4; doc.setDrawColor(216,224,235); doc.rect(margin, y, 182, 10); doc.line(margin + 3, y + 5, 193, y + 5); y += 16;
   section('5', 'DEFINICAO FINAL');
   doc.setDrawColor(216,224,235); doc.rect(margin, y, 182, 10); doc.setFillColor(240,244,249); doc.rect(margin, y, 42, 10, 'F'); doc.setTextColor(74,91,114); doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('TURMA', margin + 3, y + 6); doc.setTextColor(27,38,57); doc.setFontSize(9); doc.text(report.rec.name, margin + 46, y + 6); y += 24; doc.setDrawColor(64,81,105); doc.line(margin, y, 88, y); doc.line(122, y, 196, y); doc.setTextColor(68,84,106); doc.setFontSize(8); doc.text('Assinatura do Professor / Avaliador', 51, y + 5, { align: 'center' }); doc.text('Assinatura do Aluno ou Responsavel', 159, y + 5, { align: 'center' }); doc.setTextColor(146,161,182); doc.setFontSize(7); doc.text('Ficha de Direcionamento Tecnico - Aula Zero', 196, 289, { align: 'right' });
   return doc.output('datauristring');
@@ -224,6 +255,7 @@ async function sendTechnicalReportToUnit() {
       score: technicalReport.score,
       date: technicalReport.date,
       recommendation: technicalReport.rec.name,
+      preparation: { status: technicalReport.preparation.status, detail: technicalReport.preparation.detail },
       skills: technicalReport.printSkills.map(([name, , value]) => ({ name, value: value === null ? 'Nao avaliado' : `${value}%` })),
       pdfDataUri: makeTechnicalPdf()
     };
